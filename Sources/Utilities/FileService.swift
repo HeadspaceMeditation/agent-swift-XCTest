@@ -19,7 +19,11 @@ class FileService {
   init (logsDirectory: String) {
     self.logsDirectoryFullName = logsDirectory
     ///TODO: it is a temporary solution. Instead of .documentDirectory we need to use received path from self.logDirectory.
-    self.logDirectoryURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent(logSubdirectoryName)
+    guard let directoryPath = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
+      fatalError("FileService init: Couldn't find document directory")
+    }
+    
+    self.logDirectoryURL = directoryPath.appendingPathComponent(logSubdirectoryName)
    
     if !fileManager.fileExists(atPath: self.logDirectoryURL!.path) {
       do {
