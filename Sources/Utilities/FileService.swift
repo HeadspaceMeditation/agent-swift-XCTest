@@ -44,11 +44,6 @@ class FileService {
     
   ///Read log file with given name and return its content
   func readLogFile(fileName: String) -> String {
-        
-    guard fileManager.fileExists(atPath: fullLogPathForFile(with: fileName).path) else {
-      return ""
-    }
-    
     do {
       let fileContent = try String(contentsOfFile: fullLogPathForFile(with: fileName).path, encoding: String.Encoding.utf8)
       return fileContent
@@ -60,10 +55,6 @@ class FileService {
     
   ///Delete file with given name
   func deleteLogFile(withName fileName: String) {
-    guard fileManager.fileExists(atPath: fullLogPathForFile(with: fileName).path) else{
-      return
-    }
-        
     try? fileManager.removeItem(atPath: fullLogPathForFile(with: fileName).path)
   }
     
