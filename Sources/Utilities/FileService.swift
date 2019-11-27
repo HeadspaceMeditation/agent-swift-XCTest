@@ -11,7 +11,7 @@ import Foundation
 class FileService {
     private let fileManager = FileManager()
     private let fileExtention = ".log"
-    private let logSubdirectoryName = "testogs"
+    private let logSubdirectoryName = "testLogs"
     
     private var logsDirectoryFullName : String
     private var logDirectoryURL : URL?
