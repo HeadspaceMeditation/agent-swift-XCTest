@@ -18,8 +18,8 @@ public class RPListener: NSObject, XCTestObservation {
     super.init()
      
     XCTestObservationCenter.shared.addTestObserver(self)
-    }
-    
+  }
+  
   private func readConfiguration(from testBundle: Bundle) -> AgentConfiguration {
     guard
       let bundlePath = testBundle.path(forResource: "Info", ofType: "plist"),
@@ -35,11 +35,11 @@ public class RPListener: NSObject, XCTestObservation {
       let environment = bundleProperties["ENVIRONMENT_NAME"] as? String,
       let buildVersion = bundleProperties["CFBundleShortVersionString"] as? String else
     {
-        fatalError("Configure properties for report portal in the Info.plist")
+      fatalError("Configure properties for report portal in the Info.plist")
     }
     var tags: [String] = []
     if let tagString = bundleProperties["ReportPortalTags"] as? String {
-        tags = tagString.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).components(separatedBy: ",")
+      tags = tagString.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).components(separatedBy: ",")
     }
     tags.append(environment)
     tags.append(buildVersion)
@@ -48,7 +48,7 @@ public class RPListener: NSObject, XCTestObservation {
         
     var launchMode: LaunchMode = .default
     if let isDebug = bundleProperties["IsDebugLaunchMode"] as? Bool, isDebug == true {
-        launchMode = .debug
+      launchMode = .debug
     }
         
     var testNameRules: NameRules = []

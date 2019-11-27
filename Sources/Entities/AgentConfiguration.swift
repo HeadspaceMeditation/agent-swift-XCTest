@@ -9,7 +9,7 @@
 import Foundation
 
 struct AgentConfiguration {
-    
+
   let reportPortalURL: URL
   let projectName: String
   let launchName: String

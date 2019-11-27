@@ -9,8 +9,8 @@ import Foundation
 import XCTest
 
 enum ReportingServiceError: Error {
-    case launchIdNotFound
-    case testSuiteIdNotFound
+  case launchIdNotFound
+  case testSuiteIdNotFound
 }
 
 class ReportingService {
