@@ -27,7 +27,6 @@ class ReportingService {
   private var testID = ""
     
   private let semaphore = DispatchSemaphore(value: 0)
-  private let timeOutForRequestExpectation = 15.0
     
   init(configuration: AgentConfiguration) {
     self.configuration = configuration
@@ -47,14 +46,14 @@ class ReportingService {
     
     do {
       try self.httpClient.callEndPoint(endPoint) { (result: Launch) in
-          self.launchID = result.id
-          self.semaphore.signal()
+        self.launchID = result.id
+        self.semaphore.signal()
       }
     } catch let error {
       print(error)
     }
     
-    _ = semaphore.wait(timeout: .now() + timeOutForRequestExpectation)
+    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
   }
    
   func startRootSuite(_ suite: XCTestSuite) throws {
@@ -67,7 +66,7 @@ class ReportingService {
       self.rootSuiteID = result.id
       self.semaphore.signal()
     }
-    _ = semaphore.wait(timeout: .now() + timeOutForRequestExpectation)
+    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
   }
     
   func startTestSuite(_ suite: XCTestSuite) throws {
@@ -83,7 +82,7 @@ class ReportingService {
       self.testSuiteID = result.id
       self.semaphore.signal()
     }
-    _ = semaphore.wait(timeout: .now() + timeOutForRequestExpectation)
+    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
   }
     
   func startTest(_ test: XCTestCase) throws {
@@ -104,7 +103,7 @@ class ReportingService {
       self.testID = result.id
       self.semaphore.signal()
     }
-    _ = semaphore.wait(timeout: .now() + timeOutForRequestExpectation)
+    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
     
     self.fileService!.createLogFile(withName: extractTestName(from: test))
    }
@@ -114,7 +113,7 @@ class ReportingService {
     try httpClient.callEndPoint(endPoint) { (result: Item) in
       self.semaphore.signal()
     }
-    _ = semaphore.wait(timeout: .now() + timeOutForRequestExpectation)
+    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
   }
     
   func finishTest(_ test: XCTestCase) throws {
@@ -132,7 +131,7 @@ class ReportingService {
     try httpClient.callEndPoint(endPoint) { (result: Finish) in
       self.semaphore.signal()
     }
-    _ = semaphore.wait(timeout: .now() + timeOutForRequestExpectation)
+    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
   }
     
   func finishTestSuite() throws {
@@ -143,7 +142,7 @@ class ReportingService {
     try httpClient.callEndPoint(endPoint) { (result: Finish) in
       self.semaphore.signal()
     }
-    _ = semaphore.wait(timeout: .now() + timeOutForRequestExpectation)
+    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
   }
     
   func finishRootSuite() throws {
@@ -154,7 +153,7 @@ class ReportingService {
     try httpClient.callEndPoint(endPoint) { (result: Finish) in
       self.semaphore.signal()
     }
-    _ = semaphore.wait(timeout: .now() + timeOutForRequestExpectation)
+    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
   }
     
   func finishLaunch() throws {
@@ -169,7 +168,7 @@ class ReportingService {
     try httpClient.callEndPoint(endPoint) { (result: Finish) in
       self.semaphore.signal()
     }
-    _ = semaphore.wait(timeout: .now() + timeOutForRequestExpectation)
+    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
   }
     
   func getLaunchName() -> String {
@@ -177,31 +176,17 @@ class ReportingService {
   }
 }
 
+private enum Constants : Double {
+    case timeOutForRequestExpectation = 15.0
+}
+
 private extension ReportingService {
     
   func extractTestName(from test: XCTestCase) -> String {
     let originName = test.name.trimmingCharacters(in: .whitespacesAndNewlines)
     let components = originName.components(separatedBy: " ")
-    var result = components[1].replacingOccurrences(of: "]", with: "")
-    
-    if configuration.testNameRules.contains(.stripTestPrefix) {
-      result.removeFirst(4)
-    }
-    if configuration.testNameRules.contains(.whiteSpaceOnUnderscore) {
-      result = result.replacingOccurrences(of: "_", with: " ")
-    }
-    if configuration.testNameRules.contains(.whiteSpaceOnCamelCase) {
-      var insertOffset = 0
-      for index in 1..<result.count {
-        let currentIndex = result.index(result.startIndex, offsetBy: index + insertOffset)
-        let previousIndex = result.index(result.startIndex, offsetBy: index - 1 + insertOffset)
-        if String(result[previousIndex]).isLowercased && !String(result[currentIndex]).isLowercased {
-          result.insert(" ", at: currentIndex)
-          insertOffset += 1
-        }
-      }
-    }
-    
+    let result = components[1].replacingOccurrences(of: "]", with: "")
+
     return result
   }
     

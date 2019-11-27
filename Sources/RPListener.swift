@@ -51,19 +51,6 @@ public class RPListener: NSObject, XCTestObservation {
       launchMode = .debug
     }
         
-    var testNameRules: NameRules = []
-    if let rules = bundleProperties["TestNameRules"] as? [String: Bool] {
-      if rules["StripTestPrefix"]! {
-        testNameRules.update(with: .stripTestPrefix)
-      }
-      if rules["WhiteSpaceOnUnderscore"]! {
-        testNameRules.update(with: .whiteSpaceOnUnderscore)
-      }
-      if rules["WhiteSpaceOnCamelCase"]! {
-        testNameRules.update(with: .whiteSpaceOnCamelCase)
-      }
-    }
-        
     return AgentConfiguration(
       reportPortalURL: portalURL,
       projectName: projectName,
@@ -73,7 +60,6 @@ public class RPListener: NSObject, XCTestObservation {
       tags: tags,
       shouldFinishLaunch: shouldFinishLaunch,
       launchMode: launchMode,
-      testNameRules: testNameRules,
       logDirectory: logDirectory,
       environment: environment,
       buildVersion: buildVersion,

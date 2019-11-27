@@ -12,9 +12,10 @@ class FileService {
   private let fileManager = FileManager()
   private let fileExtention = ".log"
   private let logSubdirectoryName = "testLogs"
+  private let initialLogText = "Test log: "
     
   private var logsDirectoryFullName : String
-  private var logDirectoryURL : URL?
+  private var logDirectoryURL : URL
     
   init (logsDirectory: String) {
     self.logsDirectoryFullName = logsDirectory
@@ -25,9 +26,9 @@ class FileService {
     
     self.logDirectoryURL = directoryPath.appendingPathComponent(logSubdirectoryName)
    
-    if !fileManager.fileExists(atPath: self.logDirectoryURL!.path) {
+    if fileManager.fileExists(atPath: self.logDirectoryURL.path) {
       do {
-        try fileManager.createDirectory(atPath: self.logDirectoryURL!.path, withIntermediateDirectories: true, attributes: nil)
+        try fileManager.createDirectory(atPath: self.logDirectoryURL.path, withIntermediateDirectories: true, attributes: nil)
       } catch let error {
         print("Error creating directory: \(error.localizedDescription)")
       }
@@ -35,8 +36,8 @@ class FileService {
   }
     
   ///Return full path for particular file with given name
-  func getFullLogFilePath(forFile fileName: String) -> URL {
-    let targetURL = self.logDirectoryURL!.appendingPathComponent(fileName + fileExtention)
+  func fullLogPathForFile(with fileName: String) -> URL {
+    let targetURL = self.logDirectoryURL.appendingPathComponent(fileName + fileExtention)
         
     return targetURL
   }
@@ -44,12 +45,12 @@ class FileService {
   ///Read log file with given name and return its content
   func readLogFile(fileName: String) -> String {
         
-    guard fileManager.fileExists(atPath: getFullLogFilePath(forFile: fileName).path) else {
-      return "No log file was found"
+    guard fileManager.fileExists(atPath: fullLogPathForFile(with: fileName).path) else {
+      return ""
     }
     
     do {
-      let fileContent = try String(contentsOfFile: getFullLogFilePath(forFile: fileName).path, encoding: String.Encoding.utf8)
+      let fileContent = try String(contentsOfFile: fullLogPathForFile(with: fileName).path, encoding: String.Encoding.utf8)
       return fileContent
     } catch {
       return "Can't get data from log file with name: \(fileName+fileExtention)"
@@ -59,17 +60,15 @@ class FileService {
     
   ///Delete file with given name
   func deleteLogFile(withName fileName: String) {
-    guard fileManager.fileExists(atPath: getFullLogFilePath(forFile: fileName).path) else{
+    guard fileManager.fileExists(atPath: fullLogPathForFile(with: fileName).path) else{
       return
     }
         
-    try? fileManager.removeItem(atPath: getFullLogFilePath(forFile: fileName).path)
+    try? fileManager.removeItem(atPath: fullLogPathForFile(with: fileName).path)
   }
     
   ///Create file with given name
   func createLogFile(withName fileName: String) {
-    let emptyString = "Test log: "
-        
-    fileManager.createFile(atPath: getFullLogFilePath(forFile: fileName).path, contents: emptyString.data(using: String.Encoding.utf8))
+    fileManager.createFile(atPath: fullLogPathForFile(with: fileName).path, contents: initialLogText.data(using: String.Encoding.utf8))
   }
 }
