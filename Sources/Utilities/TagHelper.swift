@@ -14,8 +14,7 @@ enum TagHelper {
   static let defaultTags = [
     UIDevice.current.systemName,
     UIDevice.current.systemVersion,
-    UIDevice.current.modelName,
-    UIDevice.current.model
+    UIDevice.current.modelName
   ]
   
 }

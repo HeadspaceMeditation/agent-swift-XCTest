@@ -39,6 +39,7 @@
 		92FEE094212EEE2D00ADB1ED /* FinishItemEndPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92FEE093212EEE2D00ADB1ED /* FinishItemEndPoint.swift */; };
 		92FEE096212EF30700ADB1ED /* StartItemEndPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92FEE095212EF30700ADB1ED /* StartItemEndPoint.swift */; };
 		92FEE098212F028B00ADB1ED /* PostLogEndPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92FEE097212F028B00ADB1ED /* PostLogEndPoint.swift */; };
+		DEE32BA6238E6B4E0030CA36 /* FileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE32BA5238E6B4E0030CA36 /* FileService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -115,6 +116,7 @@
 		92FEE095212EF30700ADB1ED /* StartItemEndPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartItemEndPoint.swift; sourceTree = "<group>"; };
 		92FEE097212F028B00ADB1ED /* PostLogEndPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostLogEndPoint.swift; sourceTree = "<group>"; };
 		B298DF4C300965F413082F68 /* Pods_RPAgentSwiftXCTest.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RPAgentSwiftXCTest.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DEE32BA5238E6B4E0030CA36 /* FileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -253,6 +255,7 @@
 				92FEE07F212ECB7900ADB1ED /* TimeHelper.swift */,
 				92FEE08D212EEA0300ADB1ED /* TagHelper.swift */,
 				92FEE080212ECB7900ADB1ED /* UIDevice+ModelName.swift */,
+				DEE32BA5238E6B4E0030CA36 /* FileService.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -393,6 +396,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -457,6 +461,7 @@
 				92FEE094212EEE2D00ADB1ED /* FinishItemEndPoint.swift in Sources */,
 				92FEE096212EF30700ADB1ED /* StartItemEndPoint.swift in Sources */,
 				92FEE08C212ECB7900ADB1ED /* EndPoint.swift in Sources */,
+				DEE32BA6238E6B4E0030CA36 /* FileService.swift in Sources */,
 				92FEE08B212ECB7900ADB1ED /* StartLaunchEndPoint.swift in Sources */,
 				92FEE08E212EEA0300ADB1ED /* TagHelper.swift in Sources */,
 				92FEE088212ECB7900ADB1ED /* UIDevice+ModelName.swift in Sources */,

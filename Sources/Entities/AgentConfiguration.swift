@@ -9,15 +9,19 @@
 import Foundation
 
 struct AgentConfiguration {
-  
-  let reportPortalURL: URL
-  let projectName: String
-  let launchName: String
-  let shouldSendReport: Bool
-  let portalToken: String
-  let tags: [String]
-  let shouldFinishLaunch: Bool
-  let launchMode: LaunchMode
-  let testNameRules: NameRules
-  
+    
+    let reportPortalURL: URL
+    let projectName: String
+    let launchName: String
+    let shouldSendReport: Bool
+    let portalToken: String
+    let tags: [String]
+    let shouldFinishLaunch: Bool
+    let launchMode: LaunchMode
+    let testNameRules: NameRules
+    let logDirectory: String
+    let environment: String
+    let buildVersion: String
+    let testType: String
+    
 }
