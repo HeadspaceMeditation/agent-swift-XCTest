@@ -172,8 +172,8 @@ class ReportingService {
     _ = semaphore.wait(timeout: .now() + timeOutForRequestExpectation)
   }
     
-  func getLaunchName()-> String{
-    return "iOS_"+configuration.launchName+"_"+configuration.testType+"_"+configuration.environment+"_"+configuration.buildVersion
+  func getLaunchName() -> String {
+    return "iOS_" + configuration.launchName + "_" + configuration.testType + "_" + configuration.environment + "_" + configuration.buildVersion
   }
 }
 
