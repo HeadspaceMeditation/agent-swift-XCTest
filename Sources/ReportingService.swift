@@ -44,16 +44,18 @@ class ReportingService {
       mode: self.configuration.launchMode
     )
     
-    do {
-      try self.httpClient.callEndPoint(endPoint) { (result: Launch) in
-        self.launchID = result.id
-        self.semaphore.signal()
-      }
-    } catch let error {
-      print(error)
-    }
+    self.launchID = self.httpClient.synchronousCallEndPoint(endPoint, resultType: Launch.Type)
     
-    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
+//    do {
+ //     try self.httpClient.callEndPoint(endPoint) { (result: Launch) in
+//        self.launchID = result.id
+//        self.semaphore.signal()
+//      }
+//    } catch let error {
+//      print(error)
+//    }
+    
+//    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
   }
    
   func startRootSuite(_ suite: XCTestSuite) throws {

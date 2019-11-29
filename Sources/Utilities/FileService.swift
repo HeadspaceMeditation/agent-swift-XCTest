@@ -8,7 +8,7 @@
 
 import Foundation
 
-class FileService {
+final class FileService {
   private let fileManager = FileManager()
   private let fileExtention = ".log"
   private let logSubdirectoryName = "testLogs"
