@@ -89,25 +89,30 @@ class HTTPClient {
       }
       task.resume()
     }
-
   }
     
-  func synchronousCallEndPoint<T: Decodable>(_ endpoint: EndPoint, resultType: T) -> String {
-    var returnValue = ""
-    do{
-        try callEndPoint(endpoint) { (result: T) in
-        if result is Item {
-            returnValue = (result as! Item).id
-        }
-        self.semaphore.signal()
+  func synchronousCallEndPoint<T: Decodable>(_ endPoint: EndPoint) -> Result<T, Error> {
+    do {
+      var resultObject: T?
+      try callEndPoint(endPoint) { [weak self] (result: T) in
+        resultObject = result
+        self?.semaphore.signal()
       }
-      
-    } catch let error{
-        print(error.localizedDescription)
+      _ = semaphore.wait(timeout: .now() + timeOutForRequestExpectation)
+        
+      guard let result = resultObject else {
+        let err = SomeError.error
+        return .failure(err)
+      }
+      return .success(result)
+    } catch let error {
+      return .failure(error)
     }
-    _ = semaphore.wait(timeout: .now() + timeOutForRequestExpectation)
-    return returnValue
   }
+}
+
+enum SomeError: Error {
+  case error
 }
 
 protocol HTTPClientPlugin {

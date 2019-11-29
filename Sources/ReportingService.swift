@@ -26,8 +26,6 @@ class ReportingService {
   private var testSuiteID: String?
   private var testID = ""
     
-  private let semaphore = DispatchSemaphore(value: 0)
-    
   init(configuration: AgentConfiguration) {
     self.configuration = configuration
     let baseURL = configuration.reportPortalURL.appendingPathComponent(configuration.projectName)
@@ -44,18 +42,13 @@ class ReportingService {
       mode: self.configuration.launchMode
     )
     
-    self.launchID = self.httpClient.synchronousCallEndPoint(endPoint, resultType: Launch.Type)
-    
-//    do {
- //     try self.httpClient.callEndPoint(endPoint) { (result: Launch) in
-//        self.launchID = result.id
-//        self.semaphore.signal()
-//      }
-//    } catch let error {
-//      print(error)
-//    }
-    
-//    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
+    let response: Result<Launch, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
+    switch response {
+    case .success(let result):
+      self.launchID = result.id
+    case .failure(let error):
+      print(error)
+    }
   }
    
   func startRootSuite(_ suite: XCTestSuite) throws {
@@ -64,11 +57,14 @@ class ReportingService {
     }
     
     let endPoint = StartItemEndPoint(itemName: suite.name, launchID: launchID, type: .suite)
-    try httpClient.callEndPoint(endPoint) { (result: Item) in
-      self.rootSuiteID = result.id
-      self.semaphore.signal()
-    }
-    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
+   
+    let response: Result<Item, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
+    switch response {
+     case .success(let result):
+       self.rootSuiteID = result.id
+     case .failure(let error):
+       print(error)
+     }
   }
     
   func startTestSuite(_ suite: XCTestSuite) throws {
@@ -80,11 +76,13 @@ class ReportingService {
     }
     
     let endPoint = StartItemEndPoint(itemName: suite.name, parentID: rootSuiteID, launchID: launchID, type: .test)
-    try httpClient.callEndPoint(endPoint) { (result: Item) in
-      self.testSuiteID = result.id
-      self.semaphore.signal()
+    let response: Result<Item, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
+    switch response {
+     case .success(let result):
+       self.testSuiteID = result.id
+     case .failure(let error):
+       print(error)
     }
-    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
   }
     
   func startTest(_ test: XCTestCase) throws {
@@ -101,21 +99,21 @@ class ReportingService {
       type: .step
     )
     
-    try httpClient.callEndPoint(endPoint) { (result: Item) in
-      self.testID = result.id
-      self.semaphore.signal()
-    }
-    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
+    let response: Result<Item, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
+    switch response {
+      case .success(let result):
+        self.testID = result.id
+      case .failure(let error):
+        print(error)
+     }
     
-    self.fileService!.createLogFile(withName: extractTestName(from: test))
+     self.fileService!.createLogFile(withName: extractTestName(from: test))
    }
     
   func reportLog(level: String, message: String) throws {
     let endPoint = PostLogEndPoint(itemID: testID, level: level, message: message)
-    try httpClient.callEndPoint(endPoint) { (result: Item) in
-      self.semaphore.signal()
-    }
-    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
+    
+    let _: Result<Item, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
     
   func finishTest(_ test: XCTestCase) throws {
@@ -130,10 +128,7 @@ class ReportingService {
     
     let endPoint = FinishItemEndPoint(itemID: testID, status: testStatus)
     
-    try httpClient.callEndPoint(endPoint) { (result: Finish) in
-      self.semaphore.signal()
-    }
-    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
+    let _: Result<Finish, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
     
   func finishTestSuite() throws {
@@ -141,10 +136,8 @@ class ReportingService {
       throw ReportingServiceError.testSuiteIdNotFound
     }
     let endPoint = FinishItemEndPoint(itemID: testSuiteID, status: testSuiteStatus)
-    try httpClient.callEndPoint(endPoint) { (result: Finish) in
-      self.semaphore.signal()
-    }
-    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
+    
+    let _: Result<Finish, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
     
   func finishRootSuite() throws {
@@ -152,10 +145,8 @@ class ReportingService {
       throw ReportingServiceError.testSuiteIdNotFound
     }
     let endPoint = FinishItemEndPoint(itemID: rootSuiteID, status: launchStatus)
-    try httpClient.callEndPoint(endPoint) { (result: Finish) in
-      self.semaphore.signal()
-    }
-    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
+   
+    let _: Result<Finish, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
     
   func finishLaunch() throws {
@@ -167,19 +158,13 @@ class ReportingService {
       throw ReportingServiceError.launchIdNotFound
     }
     let endPoint = FinishLaunchEndPoint(launchID: launchID, status: launchStatus)
-    try httpClient.callEndPoint(endPoint) { (result: Finish) in
-      self.semaphore.signal()
-    }
-    _ = semaphore.wait(timeout: .now() + Constants.timeOutForRequestExpectation.rawValue)
+    
+    let _: Result<Finish, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
     
   func getLaunchName() -> String {
     return "iOS_" + configuration.launchName + "_" + configuration.testType + "_" + configuration.environment + "_" + configuration.buildVersion
   }
-}
-
-private enum Constants : Double {
-    case timeOutForRequestExpectation = 15.0
 }
 
 private extension ReportingService {
