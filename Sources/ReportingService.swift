@@ -37,7 +37,7 @@ class ReportingService {
   func startLaunch() throws {
     
     let endPoint = StartLaunchEndPoint(
-      launchName: self.configuration.launchName,
+      launchName: getLaunchName(),
       tags: self.configuration.tags,
       mode: self.configuration.launchMode
     )

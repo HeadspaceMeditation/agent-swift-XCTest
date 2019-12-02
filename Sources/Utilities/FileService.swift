@@ -26,7 +26,7 @@ final class FileService {
     
     self.logDirectoryURL = directoryPath.appendingPathComponent(logSubdirectoryName)
    
-    if fileManager.fileExists(atPath: self.logDirectoryURL.path) {
+    if !fileManager.fileExists(atPath: self.logDirectoryURL.path) {
       do {
         try fileManager.createDirectory(atPath: self.logDirectoryURL.path, withIntermediateDirectories: true, attributes: nil)
       } catch let error {
