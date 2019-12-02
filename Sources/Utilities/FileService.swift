@@ -12,7 +12,7 @@ final class FileService {
   private let fileManager = FileManager()
   private let fileExtention = ".log"
   private let logSubdirectoryName = "testLogs"
-  private let initialLogText = "Test log: "
+  private let initialLogText = "Test log: \r\n"
     
   private var logsDirectoryFullName : String
   private var logDirectoryURL : URL
