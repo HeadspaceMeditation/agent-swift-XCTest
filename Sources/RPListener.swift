@@ -41,8 +41,6 @@ public class RPListener: NSObject, XCTestObservation {
     if let tagString = bundleProperties["ReportPortalTags"] as? String {
       tags = tagString.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).components(separatedBy: ",")
     }
-    tags.append(environment)
-    tags.append(buildVersion)
     tags.append(testType.rawValue)
     tags.append(launchName)
         
