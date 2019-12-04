@@ -105,10 +105,6 @@ public class RPListener: NSObject, XCTestObservation {
     }
   }
     
-  public func testSuite(_ testSuite: XCTestSuite, didFailWithDescription description: String, inFile filePath: String?, atLine lineNumber: Int) {
-        
-  }
-    
   public func testCaseWillStart(_ testCase: XCTestCase) {
     queue.async {
       do {
