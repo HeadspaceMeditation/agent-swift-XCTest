@@ -43,6 +43,7 @@ public class RPListener: NSObject, XCTestObservation {
     }
     tags.append(testType.rawValue)
     tags.append(launchName)
+    tags.append(buildVersion)
         
     var launchMode: LaunchMode = .default
     if let isDebug = bundleProperties["IsDebugLaunchMode"] as? Bool, isDebug == true {
