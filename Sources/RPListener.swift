@@ -13,6 +13,7 @@ public class RPListener: NSObject, XCTestObservation {
     
   private var reportingService: ReportingService!
   private let queue = DispatchQueue(label: "com.report_portal.reporting", qos: .utility)
+  private var configuration: AgentConfiguration!
     
   public override init() {
     super.init()
@@ -67,7 +68,7 @@ public class RPListener: NSObject, XCTestObservation {
   }
     
   public func testBundleWillStart(_ testBundle: Bundle) {
-    let configuration = readConfiguration(from: testBundle)
+    self.configuration = readConfiguration(from: testBundle)
     
     guard configuration.shouldSendReport else {
       print("Set 'YES' for 'PushTestDataToReportPortal' property in Info.plist if you want to put data to report portal")
@@ -84,6 +85,9 @@ public class RPListener: NSObject, XCTestObservation {
   }
     
   public func testSuiteWillStart(_ testSuite: XCTestSuite) {
+    guard self.configuration.shouldSendReport else {
+      return
+    }
     guard
       !testSuite.name.contains("All tests"),
       !testSuite.name.contains("Selected tests") else
@@ -105,6 +109,9 @@ public class RPListener: NSObject, XCTestObservation {
   }
     
   public func testCaseWillStart(_ testCase: XCTestCase) {
+    guard self.configuration.shouldSendReport else {
+      return
+    }
     queue.async {
       do {
         try self.reportingService.startTest(testCase)
@@ -115,6 +122,9 @@ public class RPListener: NSObject, XCTestObservation {
   }
     
   public func testCase(_ testCase: XCTestCase, didFailWithDescription description: String, inFile filePath: String?, atLine lineNumber: Int) {
+    guard self.configuration.shouldSendReport else {
+      return
+    }
     queue.async {
       do {
         try self.reportingService.reportLog(level: "error", message: "Test '\(String(describing: testCase.name)))' failed on line \(lineNumber), \(description)")
@@ -125,6 +135,9 @@ public class RPListener: NSObject, XCTestObservation {
   }
     
   public func testCaseDidFinish(_ testCase: XCTestCase) {
+    guard self.configuration.shouldSendReport else {
+      return
+    }
     queue.async {
       do {
         try self.reportingService.finishTest(testCase)
@@ -135,6 +148,9 @@ public class RPListener: NSObject, XCTestObservation {
   }
     
   public func testSuiteDidFinish(_ testSuite: XCTestSuite) {
+    guard self.configuration.shouldSendReport else {
+      return
+    }
     guard
       !testSuite.name.contains("All tests"),
       !testSuite.name.contains("Selected tests") else
@@ -156,6 +172,9 @@ public class RPListener: NSObject, XCTestObservation {
   }
     
   public func testBundleDidFinish(_ testBundle: Bundle) {
+    guard self.configuration.shouldSendReport else {
+      return
+    }
     queue.sync() {
       do {
         try self.reportingService.finishLaunch()
