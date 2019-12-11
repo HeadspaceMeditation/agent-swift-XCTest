@@ -85,101 +85,95 @@ public class RPListener: NSObject, XCTestObservation {
   }
     
   public func testSuiteWillStart(_ testSuite: XCTestSuite) {
-    guard self.configuration.shouldSendReport else {
-      return
-    }
-    guard
-      !testSuite.name.contains("All tests"),
-      !testSuite.name.contains("Selected tests") else
-    {
-      return
-    }
-    
-    queue.async {
-      do {
-        if testSuite.name.contains(".xctest") {
-          try self.reportingService.startRootSuite(testSuite)
-        } else {
-          try self.reportingService.startTestSuite(testSuite)
+    if self.configuration.shouldSendReport {
+      guard
+        !testSuite.name.contains("All tests"),
+        !testSuite.name.contains("Selected tests") else
+      {
+        return
+      }
+        
+      queue.async {
+        do {
+          if testSuite.name.contains(".xctest") {
+            try self.reportingService.startRootSuite(testSuite)
+          } else {
+            try self.reportingService.startTestSuite(testSuite)
+          }
+        } catch let error {
+          print(error)
         }
-      } catch let error {
-        print(error)
       }
     }
   }
     
   public func testCaseWillStart(_ testCase: XCTestCase) {
-    guard self.configuration.shouldSendReport else {
-      return
-    }
-    queue.async {
-      do {
-        try self.reportingService.startTest(testCase)
-      } catch let error {
-        print(error)
+    if self.configuration.shouldSendReport {
+      queue.async {
+        do {
+          try self.reportingService.startTest(testCase)
+        } catch let error {
+          print(error)
+        }
       }
     }
   }
     
   public func testCase(_ testCase: XCTestCase, didFailWithDescription description: String, inFile filePath: String?, atLine lineNumber: Int) {
-    guard self.configuration.shouldSendReport else {
-      return
-    }
-    queue.async {
-      do {
-        try self.reportingService.reportLog(level: "error", message: "Test '\(String(describing: testCase.name)))' failed on line \(lineNumber), \(description)")
-      } catch let error {
-        print(error)
+    if self.configuration.shouldSendReport {
+      queue.async {
+        do {
+          try self.reportingService.reportLog(level: "error", message: "Test '\(String(describing: testCase.name)))' failed on line \(lineNumber), \(description)")
+        } catch let error {
+          print(error)
+        }
       }
     }
   }
     
   public func testCaseDidFinish(_ testCase: XCTestCase) {
-    guard self.configuration.shouldSendReport else {
-      return
-    }
-    queue.async {
-      do {
-        try self.reportingService.finishTest(testCase)
-      } catch let error {
-        print(error)
+    if self.configuration.shouldSendReport {
+      queue.async {
+        do {
+          try self.reportingService.finishTest(testCase)
+        } catch let error {
+          print(error)
+        }
       }
     }
   }
     
   public func testSuiteDidFinish(_ testSuite: XCTestSuite) {
-    guard self.configuration.shouldSendReport else {
-      return
-    }
-    guard
-      !testSuite.name.contains("All tests"),
-      !testSuite.name.contains("Selected tests") else
-    {
-      return
-    }
+    if self.configuration.shouldSendReport {
+      guard
+        !testSuite.name.contains("All tests"),
+        !testSuite.name.contains("Selected tests") else
+      {
+        return
+      }
     
-    queue.async {
-      do {
-        if testSuite.name.contains(".xctest") {
-          try self.reportingService.finishRootSuite()
-        } else {
-          try self.reportingService.finishTestSuite()
+      queue.async {
+        do {
+          if testSuite.name.contains(".xctest") {
+            try self.reportingService.finishRootSuite()
+          } else {
+            try self.reportingService.finishTestSuite()
+          }
+        } catch let error {
+          print(error)
         }
-      } catch let error {
-        print(error)
       }
     }
   }
     
   public func testBundleDidFinish(_ testBundle: Bundle) {
-    guard self.configuration.shouldSendReport else {
-      return
-    }
-    queue.sync() {
-      do {
-        try self.reportingService.finishLaunch()
-      } catch let error {
-        print(error)
+    if self.configuration.shouldSendReport {
+      queue.sync() {
+        do {
+          try self.reportingService.finishLaunch()
+        } catch let error {
+         print(error)
+        }
       }
     }
   }
