@@ -86,13 +86,6 @@ public class RPListener: NSObject, XCTestObservation {
     
   public func testSuiteWillStart(_ testSuite: XCTestSuite) {
     if self.configuration.shouldSendReport {
-      guard
-        !testSuite.name.contains("All tests"),
-        !testSuite.name.contains("Selected tests") else
-      {
-        return
-      }
-        
       queue.async {
         do {
           if testSuite.name.contains(".xctest") {
