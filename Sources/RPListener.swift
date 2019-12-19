@@ -45,6 +45,7 @@ public class RPListener: NSObject, XCTestObservation {
     tags.append(testType.rawValue)
     tags.append(launchName)
     tags.append(buildVersion)
+    tags.append(testPriority.rawValue)
         
     var launchMode: LaunchMode = .default
     if let isDebug = bundleProperties["IsDebugLaunchMode"] as? Bool, isDebug == true {
@@ -171,10 +172,22 @@ public class RPListener: NSObject, XCTestObservation {
     case uiTest
   }
     
+  enum TestPriority: String {
+    case smoke
+    case mat
+    case regression
+  }
+    
   private(set) lazy var testType: TestType = {
     let type = ProcessInfo.processInfo.environment["TestType"] ?? ""
     let other = TestType(rawValue: type) ?? .uiTest
     
     return other
+  }()
+    
+  private(set) lazy var testPriority: TestPriority = {
+    let priority = ProcessInfo.processInfo.environment["TestPriority"] ?? ""
+
+    return TestPriority(rawValue: priority) ?? .regression
   }()
 }
