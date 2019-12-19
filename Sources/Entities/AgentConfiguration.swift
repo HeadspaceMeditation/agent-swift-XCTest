@@ -22,5 +22,6 @@ struct AgentConfiguration {
   let environment: String
   let buildVersion: String
   let testType: String
+  let testPriority: String
     
 }

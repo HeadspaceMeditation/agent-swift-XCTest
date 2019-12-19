@@ -64,7 +64,8 @@ public class RPListener: NSObject, XCTestObservation {
       logDirectory: logDirectory,
       environment: environment,
       buildVersion: buildVersion,
-      testType: testType.rawValue
+      testType: testType.rawValue,
+      testPriority: testPriority.rawValue
       )
   }
     
