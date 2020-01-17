@@ -13,6 +13,7 @@ public class RPListener: NSObject, XCTestObservation {
     
   private var reportingService: ReportingService!
   private let queue = DispatchQueue(label: "com.report_portal.reporting", qos: .utility)
+  private var configuration: AgentConfiguration!
     
   public override init() {
     super.init()
@@ -37,13 +38,14 @@ public class RPListener: NSObject, XCTestObservation {
     {
       fatalError("Configure properties for report portal in the Info.plist")
     }
-    var tags: [String] = []
-    if let tagString = bundleProperties["ReportPortalTags"] as? String {
-      tags = tagString.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).components(separatedBy: ",")
-    }
-    tags.append(testType.rawValue)
-    tags.append(launchName)
-        
+   
+    var tags : [[String: Any]] = TagHelper.defaultTags
+    tags.append(["key": "environment", "system": false, "value": environment])
+    tags.append(["key": "testType", "system": false, "value": testType.rawValue])
+    tags.append(["key": "product", "system": false, "value": launchName])
+    tags.append(["key": "buildVersion", "system": false, "value": buildVersion])
+    tags.append(["key": "testPriority", "system": false, "value": testPriority.rawValue])
+            
     var launchMode: LaunchMode = .default
     if let isDebug = bundleProperties["IsDebugLaunchMode"] as? Bool, isDebug == true {
       launchMode = .debug
@@ -61,12 +63,13 @@ public class RPListener: NSObject, XCTestObservation {
       logDirectory: logDirectory,
       environment: environment,
       buildVersion: buildVersion,
-      testType: testType.rawValue
+      testType: testType.rawValue,
+      testPriority: testPriority.rawValue
       )
   }
     
   public func testBundleWillStart(_ testBundle: Bundle) {
-    let configuration = readConfiguration(from: testBundle)
+    self.configuration = readConfiguration(from: testBundle)
     
     guard configuration.shouldSendReport else {
       print("Set 'YES' for 'PushTestDataToReportPortal' property in Info.plist if you want to put data to report portal")
@@ -83,83 +86,81 @@ public class RPListener: NSObject, XCTestObservation {
   }
     
   public func testSuiteWillStart(_ testSuite: XCTestSuite) {
-    guard
-      !testSuite.name.contains("All tests"),
-      !testSuite.name.contains("Selected tests") else
-    {
-      return
-    }
-    
-    queue.async {
-      do {
-        if testSuite.name.contains(".xctest") {
-          try self.reportingService.startRootSuite(testSuite)
-        } else {
-          try self.reportingService.startTestSuite(testSuite)
+    if self.configuration.shouldSendReport {
+      queue.async {
+        do {
+          if testSuite.name.contains(".xctest") {
+            try self.reportingService.startRootSuite(testSuite)
+          } else {
+            try self.reportingService.startTestSuite(testSuite)
+          }
+        } catch let error {
+          print(error)
         }
-      } catch let error {
-        print(error)
       }
     }
   }
     
   public func testCaseWillStart(_ testCase: XCTestCase) {
-    queue.async {
-      do {
-        try self.reportingService.startTest(testCase)
-      } catch let error {
-        print(error)
+    if self.configuration.shouldSendReport {
+      queue.async {
+        do {
+          try self.reportingService.startTest(testCase)
+        } catch let error {
+          print(error)
+        }
       }
     }
   }
     
   public func testCase(_ testCase: XCTestCase, didFailWithDescription description: String, inFile filePath: String?, atLine lineNumber: Int) {
-    queue.async {
-      do {
-        try self.reportingService.reportLog(level: "error", message: "Test '\(String(describing: testCase.name)))' failed on line \(lineNumber), \(description)")
-      } catch let error {
-        print(error)
+    if self.configuration.shouldSendReport {
+      queue.async {
+        do {
+          try self.reportingService.reportLog(level: "error", message: "Test '\(String(describing: testCase.name)))' failed on line \(lineNumber), \(description)")
+        } catch let error {
+          print(error)
+        }
       }
     }
   }
     
   public func testCaseDidFinish(_ testCase: XCTestCase) {
-    queue.async {
-      do {
-        try self.reportingService.finishTest(testCase)
-      } catch let error {
-        print(error)
+    if self.configuration.shouldSendReport {
+      queue.async {
+        do {
+          try self.reportingService.finishTest(testCase)
+        } catch let error {
+          print(error)
+        }
       }
     }
   }
     
   public func testSuiteDidFinish(_ testSuite: XCTestSuite) {
-    guard
-      !testSuite.name.contains("All tests"),
-      !testSuite.name.contains("Selected tests") else
-    {
-      return
-    }
-    
-    queue.async {
-      do {
-        if testSuite.name.contains(".xctest") {
-          try self.reportingService.finishRootSuite()
-        } else {
-          try self.reportingService.finishTestSuite()
+    if self.configuration.shouldSendReport {
+      queue.async {
+        do {
+          if testSuite.name.contains(".xctest") {
+            try self.reportingService.finishRootSuite()
+          } else {
+            try self.reportingService.finishTestSuite()
+          }
+        } catch let error {
+          print(error)
         }
-      } catch let error {
-        print(error)
       }
     }
   }
     
   public func testBundleDidFinish(_ testBundle: Bundle) {
-    queue.sync() {
-      do {
-        try self.reportingService.finishLaunch()
-      } catch let error {
-        print(error)
+    if self.configuration.shouldSendReport {
+      queue.sync() {
+        do {
+          try self.reportingService.finishLaunch()
+        } catch let error {
+         print(error)
+        }
       }
     }
   }
@@ -171,10 +172,22 @@ public class RPListener: NSObject, XCTestObservation {
     case uiTest
   }
     
+  enum TestPriority: String {
+    case smoke
+    case mat
+    case regression
+  }
+    
   private(set) lazy var testType: TestType = {
     let type = ProcessInfo.processInfo.environment["TestType"] ?? ""
     let other = TestType(rawValue: type) ?? .uiTest
     
     return other
+  }()
+    
+  private(set) lazy var testPriority: TestPriority = {
+    let priority = ProcessInfo.processInfo.environment["TestPriority"] ?? ""
+
+    return TestPriority(rawValue: priority) ?? .regression
   }()
 }

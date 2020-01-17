@@ -15,12 +15,13 @@ struct AgentConfiguration {
   let launchName: String
   let shouldSendReport: Bool
   let portalToken: String
-  let tags: [String]
+  let tags: [[String: Any]]
   let shouldFinishLaunch: Bool
   let launchMode: LaunchMode
   let logDirectory: String
   let environment: String
   let buildVersion: String
   let testType: String
+  let testPriority: String
     
 }

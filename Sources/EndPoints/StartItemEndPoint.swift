@@ -21,12 +21,18 @@ struct StartItemEndPoint: EndPoint {
     }
     
     parameters = [
+      "attributes": ["key" : "", "system" : false, "value" : ""],
+      "codeRef": "",
       "description": "",
-      "launch_id": launchID,
+      "hasStats": false,
+      "launchUuid": launchID,
       "name": itemName,
-      "start_time": TimeHelper.currentTimeAsString(),
-      "tags": [],
-      "type": type.rawValue
+      "parameters": ["key": "", "value": ""],
+      "retrey": false,
+      "startTime": TimeHelper.currentTimeAsString(),
+      "testCaseHash": 0,
+      "type": type.rawValue,
+      "uniqueIu": ""
     ]
   }
   

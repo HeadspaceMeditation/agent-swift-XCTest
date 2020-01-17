@@ -30,7 +30,7 @@ protocol EndPoint {
 
 extension EndPoint {
   
-  var headers: [String: String] { return [:] }
+  var headers: [String: String] { return ["Content-Type": "application/json", "accept": "*/*"] }
   var encoding: ParameterEncoding { return .json }
   var method: HTTPMethod { return .get }
   var parameters: [String: Any] { return [:] }

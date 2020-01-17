@@ -11,10 +11,10 @@ import UIKit
 
 enum TagHelper {
   
-  static let defaultTags = [
-    UIDevice.current.systemName,
-    UIDevice.current.systemVersion,
-    UIDevice.current.modelName
-  ]
+   static let defaultTags = [
+     ["key": "system", "system": false, "value": UIDevice.current.systemName],
+     ["key": "sys_ver", "system": false, "value": UIDevice.current.systemVersion],
+     ["key": "device", "system": false, "value": UIDevice.current.modelName]
+   ]
   
 }
