@@ -17,8 +17,10 @@ struct FinishLaunchEndPoint: EndPoint {
   init(launchID: String, status: TestStatus) {
     relativePath = "launch/\(launchID)/finish"
     parameters = [
+      "attributes": [],
+      "description": "",
       "status": status.rawValue,
-      "end_time": TimeHelper.currentTimeAsString()
+      "endTime": TimeHelper.currentTimeAsString()
     ]
   }
   

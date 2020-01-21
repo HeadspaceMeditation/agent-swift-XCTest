@@ -17,11 +17,18 @@ struct FinishItemEndPoint: EndPoint {
   init(itemID: String, status: TestStatus) {
     relativePath = "item/\(itemID)"
     parameters = [
-      "end_time": TimeHelper.currentTimeAsString(),
+      "attributes": [],
+      "description": "",
+      "endTime": TimeHelper.currentTimeAsString(),
       "issue": [
+        "autoAnalyzed": "false",
         "comment": "",
-        "issue_type": status == .failed ? "TO_INVESTIGATE" : ""
+        "externalSystemIssues": [],
+        "ignoreAnalyser": true,
+        "issueType": status == .failed ? "ti001" : "nd001"
       ],
+      "launchUuid": "",
+      "retry": false,
       "status": status.rawValue
     ]
   }

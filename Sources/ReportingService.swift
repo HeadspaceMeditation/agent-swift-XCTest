@@ -56,7 +56,7 @@ class ReportingService {
       throw ReportingServiceError.launchIdNotFound
     }
     
-    let endPoint = StartItemEndPoint(itemName: suite.name, launchID: launchID, type: .suite)
+    let endPoint = StartItemEndPoint(itemName: suite.name, launchID: launchID, type: .suite, tags: [])
    
     let response: Result<Item, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
     switch response {
@@ -74,8 +74,7 @@ class ReportingService {
     guard let rootSuiteID = rootSuiteID else {
       throw ReportingServiceError.launchIdNotFound
     }
-    
-    let endPoint = StartItemEndPoint(itemName: suite.name, parentID: rootSuiteID, launchID: launchID, type: .test)
+    let endPoint = StartItemEndPoint(itemName: suite.name, parentID: rootSuiteID, launchID: launchID, type: .test, tags: [])
     let response: Result<Item, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
     switch response {
      case .success(let result):
@@ -92,11 +91,13 @@ class ReportingService {
     guard let testSuiteID = testSuiteID else {
       throw ReportingServiceError.testSuiteIdNotFound
     }
+    var tags : [[String: Any]] = []
     let endPoint = StartItemEndPoint(
       itemName: extractTestName(from: test),
       parentID: testSuiteID,
       launchID: launchID,
-      type: .step
+      type: .step,
+      tags: tags
     )
     
     let response: Result<Item, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
@@ -128,7 +129,7 @@ class ReportingService {
     
     let endPoint = FinishItemEndPoint(itemID: testID, status: testStatus)
     
-    let _: Result<Finish, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
+    let _: Result<FinishItem, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
     
   func finishTestSuite() throws {
@@ -137,7 +138,7 @@ class ReportingService {
     }
     let endPoint = FinishItemEndPoint(itemID: testSuiteID, status: testSuiteStatus)
     
-    let _: Result<Finish, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
+    let _: Result<FinishItem, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
     
   func finishRootSuite() throws {
@@ -146,7 +147,7 @@ class ReportingService {
     }
     let endPoint = FinishItemEndPoint(itemID: rootSuiteID, status: launchStatus)
    
-    let _: Result<Finish, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
+    let _: Result<FinishItem, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
     
   func finishLaunch() throws {
@@ -159,7 +160,7 @@ class ReportingService {
     }
     let endPoint = FinishLaunchEndPoint(launchID: launchID, status: launchStatus)
     
-    let _: Result<Finish, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
+    let _: Result<FinishLaunch, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
     
   func getLaunchName() -> String {
