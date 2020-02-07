@@ -165,7 +165,6 @@ class ReportingService {
   func getLaunchName() -> String {
     var launchName = "iOS_" + configuration.launchName + "_" + configuration.testType
     launchName += "_" + configuration.testPriority + "_" + configuration.environment
-    launchName += "_" + configuration.buildVersion
    
     return launchName
   }
