@@ -46,14 +46,14 @@ final class FileService {
   func readLogFile(fileName: String) -> String {
         
     guard fileManager.fileExists(atPath: fullLogPathForFile(with: fileName).path) else {
-      return fatalError("FileService read: Couldn't find log file").localizedDescription
+      return ""
     }
     
     do {
       let fileContent = try String(contentsOfFile: fullLogPathForFile(with: fileName).path, encoding: String.Encoding.utf8)
       return fileContent
     } catch {
-      return fatalError("FileService read: Couldn't read log file").localizedDescription
+      return ""
     }
         
   }
@@ -61,7 +61,7 @@ final class FileService {
   ///Delete file with given name
   func deleteLogFile(withName fileName: String) {
     guard fileManager.fileExists(atPath: fullLogPathForFile(with: fileName).path) else{
-      fatalError("FileService delete: Couldn't find log file")
+      return
     }
         
     try? fileManager.removeItem(atPath: fullLogPathForFile(with: fileName).path)
