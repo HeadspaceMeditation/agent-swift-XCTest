@@ -43,25 +43,25 @@ final class FileService {
   }
     
   ///Read log file with given name and return its content
-  func readLogFile(fileName: String) -> String {
+  func readLogFile(fileName: String) throws -> String {
         
     guard fileManager.fileExists(atPath: fullLogPathForFile(with: fileName).path) else {
-      return ""
+        throw FileServiceError.fileDoesNotExistsError
     }
     
     do {
       let fileContent = try String(contentsOfFile: fullLogPathForFile(with: fileName).path, encoding: String.Encoding.utf8)
       return fileContent
     } catch {
-      return ""
+      throw FileServiceError.readFileError
     }
         
   }
     
   ///Delete file with given name
-  func deleteLogFile(withName fileName: String) {
+  func deleteLogFile(withName fileName: String) throws {
     guard fileManager.fileExists(atPath: fullLogPathForFile(with: fileName).path) else{
-      return
+      throw FileServiceError.fileDoesNotExistsError
     }
         
     try? fileManager.removeItem(atPath: fullLogPathForFile(with: fileName).path)
@@ -71,4 +71,9 @@ final class FileService {
   func createLogFile(withName fileName: String) {
     fileManager.createFile(atPath: fullLogPathForFile(with: fileName).path, contents: initialLogText.data(using: String.Encoding.utf8))
   }
+}
+
+enum FileServiceError: Error {
+    case readFileError
+    case fileDoesNotExistsError
 }

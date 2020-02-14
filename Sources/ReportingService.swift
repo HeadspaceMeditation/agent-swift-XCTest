@@ -124,7 +124,7 @@ class ReportingService {
     }
     
     try? reportLog(level: "info", message: fileService!.readLogFile(fileName: extractTestName(from: test)))
-    fileService!.deleteLogFile(withName: extractTestName(from: test))
+    try? fileService!.deleteLogFile(withName: extractTestName(from: test))
     
     let endPoint = FinishItemEndPoint(itemID: testID, status: testStatus)
     
