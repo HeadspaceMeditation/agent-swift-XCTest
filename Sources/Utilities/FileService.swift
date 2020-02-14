@@ -61,7 +61,7 @@ final class FileService {
   ///Delete file with given name
   func deleteLogFile(withName fileName: String) throws {
     guard fileManager.fileExists(atPath: fullLogPathForFile(with: fileName).path) else{
-      throw FileServiceError.fileDoesNotExistsError
+      return
     }
         
     try? fileManager.removeItem(atPath: fullLogPathForFile(with: fileName).path)
