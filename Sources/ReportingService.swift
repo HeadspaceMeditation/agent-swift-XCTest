@@ -128,7 +128,7 @@ class ReportingService {
     
     let endPoint = FinishItemEndPoint(itemID: testID, status: testStatus)
     
-    let _: Result<Finish, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
+    let _: Result<FinishItem, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
     
   func finishTestSuite() throws {
@@ -137,7 +137,7 @@ class ReportingService {
     }
     let endPoint = FinishItemEndPoint(itemID: testSuiteID, status: testSuiteStatus)
     
-    let _: Result<Finish, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
+    let _: Result<FinishItem, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
     
   func finishRootSuite() throws {
@@ -146,7 +146,7 @@ class ReportingService {
     }
     let endPoint = FinishItemEndPoint(itemID: rootSuiteID, status: launchStatus)
    
-    let _: Result<Finish, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
+    let _: Result<FinishItem, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
     
   func finishLaunch() throws {
@@ -159,7 +159,7 @@ class ReportingService {
     }
     let endPoint = FinishLaunchEndPoint(launchID: launchID, status: launchStatus)
     
-    let _: Result<Finish, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
+    let _: Result<FinishLaunch, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
     
   func getLaunchName() -> String {
