@@ -9,7 +9,7 @@
 import Foundation
 
 enum FinishItemKeys: String, CodingKey {
-  case msg = "message"
+  case msg = "msg"
 }
 
 

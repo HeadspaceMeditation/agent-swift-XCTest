@@ -92,7 +92,7 @@ public class RPListener: NSObject, XCTestObservation {
         do {
           if testSuite.name.contains(".xctest") {
             try self.reportingService.startRootSuite(testSuite)
-          } else {
+          } else if !testSuite.name.contains("Selected tests") {
             try self.reportingService.startTestSuite(testSuite)
           }
         } catch let error {

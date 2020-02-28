@@ -8,7 +8,7 @@
 import Foundation
 
 enum FinishLaunchKeys: String, CodingKey {
-  case launchId = "id"
+  case launchId = "mgs"
 }
 
 struct FinishLaunch: Decodable {
