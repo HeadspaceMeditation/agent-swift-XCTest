@@ -14,6 +14,7 @@ public class RPListener: NSObject, XCTestObservation {
   private var reportingService: ReportingService!
   private let queue = DispatchQueue(label: "com.report_portal.reporting", qos: .utility)
   private var configuration: AgentConfiguration!
+  private var publishData = false
     
   public override init() {
     super.init()
@@ -71,8 +72,12 @@ public class RPListener: NSObject, XCTestObservation {
     
   public func testBundleWillStart(_ testBundle: Bundle) {
     self.configuration = readConfiguration(from: testBundle)
+
+    if ProcessInfo.processInfo.environment["CIRCLECI"]! == "true" || configuration.shouldSendReport {
+        publishData = true
+    }
     
-    guard configuration.shouldSendReport else {
+    guard publishData else {
       print("Set 'YES' for 'PushTestDataToReportPortal' property in Info.plist if you want to put data to report portal")
       return
     }
@@ -87,7 +92,7 @@ public class RPListener: NSObject, XCTestObservation {
   }
     
   public func testSuiteWillStart(_ testSuite: XCTestSuite) {
-    if self.configuration.shouldSendReport {
+    if publishData {
       queue.async {
         do {
           if testSuite.name.contains(".xctest") {
@@ -103,7 +108,7 @@ public class RPListener: NSObject, XCTestObservation {
   }
     
   public func testCaseWillStart(_ testCase: XCTestCase) {
-    if self.configuration.shouldSendReport {
+    if publishData {
       queue.async {
         do {
           try self.reportingService.startTest(testCase)
@@ -115,7 +120,7 @@ public class RPListener: NSObject, XCTestObservation {
   }
     
   public func testCase(_ testCase: XCTestCase, didFailWithDescription description: String, inFile filePath: String?, atLine lineNumber: Int) {
-    if self.configuration.shouldSendReport {
+    if publishData {
       queue.async {
         do {
           try self.reportingService.reportLog(level: "error", message: "Test '\(String(describing: testCase.name)))' failed on line \(lineNumber), \(description)")
@@ -127,7 +132,7 @@ public class RPListener: NSObject, XCTestObservation {
   }
     
   public func testCaseDidFinish(_ testCase: XCTestCase) {
-    if self.configuration.shouldSendReport {
+    if publishData {
       queue.async {
         do {
           try self.reportingService.finishTest(testCase)
@@ -139,7 +144,7 @@ public class RPListener: NSObject, XCTestObservation {
   }
     
   public func testSuiteDidFinish(_ testSuite: XCTestSuite) {
-    if self.configuration.shouldSendReport {
+    if publishData {
       queue.async {
         do {
           if testSuite.name.contains(".xctest") {
@@ -155,7 +160,7 @@ public class RPListener: NSObject, XCTestObservation {
   }
     
   public func testBundleDidFinish(_ testBundle: Bundle) {
-    if self.configuration.shouldSendReport {
+    if publishData {
       queue.sync() {
         do {
           try self.reportingService.finishLaunch()
