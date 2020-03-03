@@ -10,18 +10,18 @@ import Foundation
 import XCTest
 
 public class RPListener: NSObject, XCTestObservation {
-  
+
   private var reportingService: ReportingService!
   private let queue = DispatchQueue(label: "com.report_portal.reporting", qos: .utility)
   private var configuration: AgentConfiguration!
   private var publishData = false
-  
+
   public override init() {
     super.init()
-    
+
     XCTestObservationCenter.shared.addTestObserver(self)
   }
-  
+
   private func readConfiguration(from testBundle: Bundle) -> AgentConfiguration {
     guard
       let bundlePath = testBundle.path(forResource: "Info", ofType: "plist"),
@@ -47,12 +47,12 @@ public class RPListener: NSObject, XCTestObservation {
     tags.append(launchName)
     tags.append(buildVersion)
     tags.append(testPriority.rawValue)
-    
+
     var launchMode: LaunchMode = .default
     if let isDebug = bundleProperties["IsDebugLaunchMode"] as? Bool, isDebug == true {
       launchMode = .debug
     }
-    
+
     return AgentConfiguration(
       reportPortalURL: portalURL,
       projectName: projectName,
@@ -69,14 +69,17 @@ public class RPListener: NSObject, XCTestObservation {
       testPriority: testPriority.rawValue
     )
   }
-  
+
   public func testBundleWillStart(_ testBundle: Bundle) {
     self.configuration = readConfiguration(from: testBundle)
-    
-    if ProcessInfo.processInfo.environment["CIRCLECI"]! == "true" || configuration.shouldSendReport {
-      publishData = true
+
+    //Determine whether to send data to the Report Portal. Data can be sent if tests are run
+    //from CircleCI or the PushTestDataToReportPortal parameter is set to YES
+    let circleCIRun = (ProcessInfo.processInfo.environment["CIRCLECI"] ?? "false") == "true"
+    if  circleCIRun || configuration.shouldSendReport {
+        publishData = true
     }
-    
+
     guard publishData else {
       print("Set 'YES' for 'PushTestDataToReportPortal' property in Info.plist if you want to put data to report portal")
       return
@@ -90,7 +93,7 @@ public class RPListener: NSObject, XCTestObservation {
       }
     }
   }
-  
+
   public func testSuiteWillStart(_ testSuite: XCTestSuite) {
     if publishData {
       queue.async {
@@ -106,7 +109,7 @@ public class RPListener: NSObject, XCTestObservation {
       }
     }
   }
-  
+
   public func testCaseWillStart(_ testCase: XCTestCase) {
     if publishData {
       queue.async {
@@ -118,7 +121,7 @@ public class RPListener: NSObject, XCTestObservation {
       }
     }
   }
-  
+
   public func testCase(_ testCase: XCTestCase, didFailWithDescription description: String, inFile filePath: String?, atLine lineNumber: Int) {
     if publishData {
       queue.async {
@@ -130,7 +133,7 @@ public class RPListener: NSObject, XCTestObservation {
       }
     }
   }
-  
+
   public func testCaseDidFinish(_ testCase: XCTestCase) {
     if publishData {
       queue.async {
@@ -142,7 +145,7 @@ public class RPListener: NSObject, XCTestObservation {
       }
     }
   }
-  
+
   public func testSuiteDidFinish(_ testSuite: XCTestSuite) {
     if publishData {
       queue.async {
@@ -158,7 +161,7 @@ public class RPListener: NSObject, XCTestObservation {
       }
     }
   }
-  
+
   public func testBundleDidFinish(_ testBundle: Bundle) {
     if publishData {
       queue.sync() {
@@ -170,30 +173,30 @@ public class RPListener: NSObject, XCTestObservation {
       }
     }
   }
-  
+
   // MARK: - Environment
-  
+
   enum TestType: String {
     case e2eTest
     case uiTest
   }
-  
+
   enum TestPriority: String {
     case smoke
     case mat
     case regression
   }
-  
+
   private(set) lazy var testType: TestType = {
     let type = ProcessInfo.processInfo.environment["TestType"] ?? ""
     let other = TestType(rawValue: type) ?? .uiTest
-    
+
     return other
   }()
-  
+
   private(set) lazy var testPriority: TestPriority = {
     let priority = ProcessInfo.processInfo.environment["TestPriority"] ?? ""
-    
+
     return TestPriority(rawValue: priority) ?? .regression
   }()
 }
