@@ -14,7 +14,7 @@ public class RPListener: NSObject, XCTestObservation {
   private var reportingService: ReportingService!
   private let queue = DispatchQueue(label: "com.report_portal.reporting", qos: .utility)
   private var configuration: AgentConfiguration!
-  private var publishData = false
+  private var shouldPublishData = false
 
   public override init() {
     super.init()
@@ -76,11 +76,9 @@ public class RPListener: NSObject, XCTestObservation {
     //Determine whether to send data to the Report Portal. Data can be sent if tests are run
     //from CircleCI or the PushTestDataToReportPortal parameter is set to YES
     let circleCIRun = (ProcessInfo.processInfo.environment["CIRCLECI"] ?? "false") == "true"
-    if  circleCIRun || configuration.shouldSendReport {
-        publishData = true
-    }
+    shouldPublishData = circleCIRun || configuration.shouldSendReport
 
-    guard publishData else {
+    guard shouldPublishData else {
       print("Set 'YES' for 'PushTestDataToReportPortal' property in Info.plist if you want to put data to report portal")
       return
     }
@@ -95,7 +93,7 @@ public class RPListener: NSObject, XCTestObservation {
   }
 
   public func testSuiteWillStart(_ testSuite: XCTestSuite) {
-    if publishData {
+    if shouldPublishData {
       queue.async {
         do {
           if testSuite.name.contains(".xctest") {
@@ -111,7 +109,7 @@ public class RPListener: NSObject, XCTestObservation {
   }
 
   public func testCaseWillStart(_ testCase: XCTestCase) {
-    if publishData {
+    if shouldPublishData {
       queue.async {
         do {
           try self.reportingService.startTest(testCase)
@@ -123,7 +121,7 @@ public class RPListener: NSObject, XCTestObservation {
   }
 
   public func testCase(_ testCase: XCTestCase, didFailWithDescription description: String, inFile filePath: String?, atLine lineNumber: Int) {
-    if publishData {
+    if shouldPublishData {
       queue.async {
         do {
           try self.reportingService.reportLog(level: "error", message: "Test '\(String(describing: testCase.name)))' failed on line \(lineNumber), \(description)")
@@ -135,7 +133,7 @@ public class RPListener: NSObject, XCTestObservation {
   }
 
   public func testCaseDidFinish(_ testCase: XCTestCase) {
-    if publishData {
+    if shouldPublishData {
       queue.async {
         do {
           try self.reportingService.finishTest(testCase)
@@ -147,7 +145,7 @@ public class RPListener: NSObject, XCTestObservation {
   }
 
   public func testSuiteDidFinish(_ testSuite: XCTestSuite) {
-    if publishData {
+    if shouldPublishData {
       queue.async {
         do {
           if testSuite.name.contains(".xctest") {
@@ -163,7 +161,7 @@ public class RPListener: NSObject, XCTestObservation {
   }
 
   public func testBundleDidFinish(_ testBundle: Bundle) {
-    if publishData {
+    if shouldPublishData {
       queue.sync() {
         do {
           try self.reportingService.finishLaunch()
