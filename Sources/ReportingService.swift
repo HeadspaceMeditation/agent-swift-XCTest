@@ -125,7 +125,7 @@ class ReportingService {
     }
     
     try? reportLog(level: "info", message: fileService!.readLogFile(fileName: extractTestName(from: test)))
-    fileService!.deleteLogFile(withName: extractTestName(from: test))
+    try? fileService!.deleteLogFile(withName: extractTestName(from: test))
     
     let endPoint = FinishItemEndPoint(itemID: testID, status: testStatus)
     
@@ -164,7 +164,10 @@ class ReportingService {
   }
     
   func getLaunchName() -> String {
-    return "iOS_" + configuration.launchName + "_" + configuration.testType + "_" + configuration.environment + "_" + configuration.buildVersion
+    var launchName = "iOS_" + configuration.launchName + "_" + configuration.testType
+    launchName += "_" + configuration.testPriority + "_" + configuration.environment
+ 
+    return launchName
   }
 }
 
