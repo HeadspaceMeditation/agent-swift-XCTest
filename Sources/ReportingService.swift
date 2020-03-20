@@ -17,7 +17,7 @@ class ReportingService {
     
   private let httpClient: HTTPClient
   private let configuration: AgentConfiguration
-  private var fileService: FileService?
+  private let fileService = FileService()
     
   private var launchID: String?
   private var testSuiteStatus = TestStatus.passed
@@ -31,7 +31,6 @@ class ReportingService {
     let baseURL = configuration.reportPortalURL.appendingPathComponent(configuration.projectName)
     httpClient = HTTPClient(baseURL: baseURL)
     httpClient.setPlugins([AuthorizationPlugin(token: configuration.portalToken)])
-    self.fileService = FileService(logsDirectory: configuration.logDirectory)
   }
     
   func startLaunch() throws {
@@ -107,7 +106,7 @@ class ReportingService {
         print(error)
      }
     
-     self.fileService!.createLogFile(withName: extractTestName(from: test))
+     fileService.createLogFile(withName: extractTestName(from: test))
    }
     
   func reportLog(level: String, message: String) throws {
@@ -123,8 +122,8 @@ class ReportingService {
       launchStatus = .failed
     }
     
-    try? reportLog(level: "info", message: fileService!.readLogFile(fileName: extractTestName(from: test)))
-    try? fileService!.deleteLogFile(withName: extractTestName(from: test))
+    try? reportLog(level: "info", message: fileService.readLogFile(fileName: extractTestName(from: test)))
+    try? fileService.deleteLogFile(withName: extractTestName(from: test))
     
     let endPoint = FinishItemEndPoint(itemID: testID, status: testStatus)
     

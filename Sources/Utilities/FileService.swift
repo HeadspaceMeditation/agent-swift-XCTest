@@ -14,26 +14,20 @@ final class FileService {
   private let logSubdirectoryName = "testLogs"
   private let initialLogText = "Test log: \r\n"
     
-  private var logsDirectoryFullName : String
   private var logDirectoryURL : URL
-    
-  init (logsDirectory: String) {
-    self.logsDirectoryFullName = logsDirectory
-    ///TODO: it is a temporary solution. Instead of .documentDirectory we need to use received path from self.logDirectory.
-    guard let directoryPath = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
-      fatalError("FileService init: Couldn't find document directory")
-    }
-    
-    self.logDirectoryURL = directoryPath.appendingPathComponent(logSubdirectoryName)
-   
-    if !fileManager.fileExists(atPath: self.logDirectoryURL.path) {
-      do {
-        try fileManager.createDirectory(atPath: self.logDirectoryURL.path, withIntermediateDirectories: true, attributes: nil)
-      } catch let error {
-        print("Error creating directory: \(error.localizedDescription)")
-      }
-    }
-  }
+
+   init () {
+     let directoryPath = fileManager.temporaryDirectory
+     self.logDirectoryURL = directoryPath.appendingPathComponent(logSubdirectoryName)
+
+     if !fileManager.fileExists(atPath: self.logDirectoryURL.path) {
+       do {
+         try fileManager.createDirectory(atPath: self.logDirectoryURL.path, withIntermediateDirectories: true, attributes: nil)
+       } catch let error {
+         print("Error creating directory: \(error.localizedDescription)")
+       }
+     }
+   }
     
   ///Return full path for particular file with given name
   func fullLogPathForFile(with fileName: String) -> URL {
