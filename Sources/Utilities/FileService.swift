@@ -13,27 +13,21 @@ final class FileService {
   private let fileExtention = ".log"
   private let logSubdirectoryName = "testLogs"
   private let initialLogText = "Test log: \r\n"
-    
-  private var logsDirectoryFullName : String
+
   private var logDirectoryURL : URL
-    
-  init (logsDirectory: String) {
-    self.logsDirectoryFullName = logsDirectory
-    ///TODO: it is a temporary solution. Instead of .documentDirectory we need to use received path from self.logDirectory.
-    guard let directoryPath = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
-      fatalError("FileService init: Couldn't find document directory")
-    }
-    
-    self.logDirectoryURL = directoryPath.appendingPathComponent(logSubdirectoryName)
-   
-    if !fileManager.fileExists(atPath: self.logDirectoryURL.path) {
-      do {
-        try fileManager.createDirectory(atPath: self.logDirectoryURL.path, withIntermediateDirectories: true, attributes: nil)
-      } catch let error {
-        print("Error creating directory: \(error.localizedDescription)")
-      }
-    }
-  }
+
+   init () {
+     let directoryPath = fileManager.temporaryDirectory
+     self.logDirectoryURL = directoryPath.appendingPathComponent(logSubdirectoryName)
+
+     if !fileManager.fileExists(atPath: self.logDirectoryURL.path) {
+       do {
+         try fileManager.createDirectory(atPath: self.logDirectoryURL.path, withIntermediateDirectories: true, attributes: nil)
+       } catch let error {
+         print("Error creating directory: \(error.localizedDescription)")
+       }
+     }
+   }
     
   ///Return full path for particular file with given name
   func fullLogPathForFile(with fileName: String) -> URL {
@@ -41,22 +35,22 @@ final class FileService {
         
     return targetURL
   }
-    
+
   ///Read log file with given name and return its content
   func readLogFile(fileName: String) throws -> String {
-        
-    guard fileManager.fileExists(atPath: fullLogPathForFile(with: fileName).path) else {
-      throw FileServiceError.fileDoesNotExistsError
-    }
-    
-    do {
-      let fileContent = try String(contentsOfFile: fullLogPathForFile(with: fileName).path, encoding: String.Encoding.utf8)
-      return fileContent
-    } catch {
-      throw FileServiceError.readFileError
-    }
-        
-  }
+
+     guard fileManager.fileExists(atPath: fullLogPathForFile(with: fileName).path) else {
+         throw FileServiceError.fileDoesNotExistsError
+     }
+
+     do {
+       let fileContent = try String(contentsOfFile: fullLogPathForFile(with: fileName).path, encoding: String.Encoding.utf8)
+       return fileContent
+     } catch {
+       throw FileServiceError.readFileError
+     }
+
+   }
     
   ///Delete file with given name
   func deleteLogFile(withName fileName: String) throws {
