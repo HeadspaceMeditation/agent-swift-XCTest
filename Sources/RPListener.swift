@@ -35,7 +35,8 @@ public class RPListener: NSObject, XCTestObservation {
       let launchName = bundleProperties["ReportPortalLaunchName"] as? String,
       let logDirectory = bundleProperties["REMOTE_LOGGING_BASE_URL"] as? String,
       let environment = bundleProperties["ENVIRONMENT_NAME"] as? String,
-      let buildVersion = bundleProperties["CFBundleShortVersionString"] as? String else
+      let buildVersion = bundleProperties["CFBundleShortVersionString"] as? String,
+      let testRunServerName = bundleProperties["TestRunServerName"] as? String else
     {
       fatalError("Configure properties for report portal in the Info.plist")
     }
@@ -46,6 +47,7 @@ public class RPListener: NSObject, XCTestObservation {
     tags.append(["key": "product", "system": false, "value": launchName])
     tags.append(["key": "buildVersion", "system": false, "value": buildVersion])
     tags.append(["key": "testPriority", "system": false, "value": testPriority.rawValue])
+    tags.append(["key": "serverName", "system": false, "value": testRunServerName])
             
     var launchMode: LaunchMode = .default
     if let isDebug = bundleProperties["IsDebugLaunchMode"] as? Bool, isDebug == true {
@@ -182,6 +184,7 @@ public class RPListener: NSObject, XCTestObservation {
     case smoke
     case mat
     case regression
+    case debug
   }
     
   private(set) lazy var testType: TestType = {
@@ -194,6 +197,6 @@ public class RPListener: NSObject, XCTestObservation {
   private(set) lazy var testPriority: TestPriority = {
     let priority = ProcessInfo.processInfo.environment["TestPriority"] ?? ""
 
-    return TestPriority(rawValue: priority) ?? .regression
+    return TestPriority(rawValue: priority) ?? .debug
   }()
 }
