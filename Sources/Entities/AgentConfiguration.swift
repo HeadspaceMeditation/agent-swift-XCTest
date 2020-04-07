@@ -23,5 +23,6 @@ struct AgentConfiguration {
   let buildVersion: String
   let testType: String
   let testPriority: String
+  let testRunServerName: String
     
 }
