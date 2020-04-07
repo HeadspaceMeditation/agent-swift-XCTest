@@ -175,13 +175,13 @@ public class RPListener: NSObject, XCTestObservation {
     }
   }
 
-    private func getServerName() -> String {
-        let runnerPath = ProcessInfo.processInfo.arguments[0]
-        let startPosition = runnerPath.firstIndex(of: "/")!
-        let substring = runnerPath.suffix(from: startPosition)
-        let endPosition = substring.firstIndex(of: "/")!
-        return String(substring.prefix(upTo: endPosition))
-    }
+  private func getServerName() -> String {
+    let runnerPath = ProcessInfo.processInfo.arguments[0]
+    let startPosition = runnerPath.firstIndex(of: "/")!
+    let substring = runnerPath.suffix(from: startPosition)
+    let endPosition = substring.firstIndex(of: "/")!
+    return String(substring.prefix(upTo: endPosition))
+  }
 
   // MARK: - Environment
 
