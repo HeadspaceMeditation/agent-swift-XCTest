@@ -41,7 +41,9 @@ public class RPListener: NSObject, XCTestObservation {
       fatalError("Configure properties for report portal in the Info.plist")
     }
 
-    let currentServerName = getServerName()
+    //Determine user name/machine name which inits test run. Initially, the data looks like /Users/epamcontractor/Library/Developer/...
+    //We need to extract the second value, i.e. epamcontractor for example.
+    let currentServerName = String(ProcessInfo.processInfo.arguments[0].split(separator: "/")[1])
 
     var tags: [String] = []
     if let tagString = bundleProperties["ReportPortalTags"] as? String {
@@ -176,18 +178,6 @@ public class RPListener: NSObject, XCTestObservation {
         }
       }
     }
-  }
-
-  private func getServerName() -> String {
-    //Determine user name/machine name which inits test run. Initially, the data looks like /Users/epamcontractor/Library/Developer/...
-    //We need to extract the second value, i.e. epamcontractor for example.
-    let runnerPath = ProcessInfo.processInfo.arguments[0]
-    let startPosition = runnerPath.index(after: runnerPath.firstIndex(of: "/")!)
-    let substring = runnerPath.suffix(from: startPosition)
-    let startPosition1 = substring.index(after: substring.firstIndex(of: "/")!)
-    let substring1 = substring.suffix(from: startPosition1)
-    let endPosition = substring1.firstIndex(of: "/")!
-    return String(substring1.prefix(upTo: endPosition))
   }
 
   // MARK: - Environment
