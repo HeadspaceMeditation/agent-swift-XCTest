@@ -40,6 +40,9 @@ public class RPListener: NSObject, XCTestObservation {
     {
       fatalError("Configure properties for report portal in the Info.plist")
     }
+
+    let currentServerName = getServerName()
+
     var tags: [String] = []
     if let tagString = bundleProperties["ReportPortalTags"] as? String {
       tags = tagString.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).components(separatedBy: ",")
@@ -48,7 +51,7 @@ public class RPListener: NSObject, XCTestObservation {
     tags.append(launchName)
     tags.append(buildVersion)
     tags.append(testPriority.rawValue)
-    tags.append(testRunServerName)
+    tags.append(currentServerName)
 
     var launchMode: LaunchMode = .default
     if let isDebug = bundleProperties["IsDebugLaunchMode"] as? Bool, isDebug == true {
@@ -57,8 +60,8 @@ public class RPListener: NSObject, XCTestObservation {
 
     //Determine whether to send data to the Report Portal. Data can be sent if tests are run
     //from CircleCI or the PushTestDataToReportPortal parameter is set to YES
-    let circleCIRun = getServerName() == testRunServerName
-    shouldPublishData = circleCIRun || configuration.shouldSendReport
+    let circleCIRun = currentServerName == testRunServerName
+    shouldPublishData = circleCIRun || shouldReport
 
     return AgentConfiguration(
       reportPortalURL: portalURL,
@@ -176,11 +179,15 @@ public class RPListener: NSObject, XCTestObservation {
   }
 
   private func getServerName() -> String {
+    //Determine user name/machine name which inits test run. Initially, the data looks like /Users/epamcontractor/Library/Developer/...
+    //We need to extract the second value, i.e. epamcontractor for example.
     let runnerPath = ProcessInfo.processInfo.arguments[0]
-    let startPosition = runnerPath.firstIndex(of: "/")!
+    let startPosition = runnerPath.index(after: runnerPath.firstIndex(of: "/")!)
     let substring = runnerPath.suffix(from: startPosition)
-    let endPosition = substring.firstIndex(of: "/")!
-    return String(substring.prefix(upTo: endPosition))
+    let startPosition1 = substring.index(after: substring.firstIndex(of: "/")!)
+    let substring1 = substring.suffix(from: startPosition1)
+    let endPosition = substring1.firstIndex(of: "/")!
+    return String(substring1.prefix(upTo: endPosition))
   }
 
   // MARK: - Environment
