@@ -129,11 +129,11 @@ class ReportingService {
     }
 
     let testName = extractTestName(from: test)
-    let logFileName = testName+".log"
+    let logFileName = testName + ".log"
     try? reportLog(level: "info", message: fileService.readLogFile(fileName: logFileName))
     try? fileService.deleteFile(withName: logFileName)
 
-    let screenshotFileName = testName+".png"
+    let screenshotFileName = testName + ".png"
     if fileService.isFileExist(withName: screenshotFileName) {
       try? attachScreenshot(fileName: screenshotFileName)
       try? fileService.deleteFile(withName: screenshotFileName)
