@@ -10,7 +10,6 @@ import Foundation
 
 final class FileService {
   private let fileManager = FileManager()
-  private let fileExtention = ".log"
   private let logSubdirectoryName = "testLogs"
   private let initialLogText = "Test log: \r\n"
     
@@ -30,8 +29,8 @@ final class FileService {
    }
     
   ///Return full path for particular file with given name
-  func fullLogPathForFile(with fileName: String) -> URL {
-    let targetURL = self.logDirectoryURL.appendingPathComponent(fileName + fileExtention)
+  func fullPathForFile(with fileName: String) -> URL {
+    let targetURL = self.logDirectoryURL.appendingPathComponent(fileName)
         
     return targetURL
   }
@@ -39,12 +38,12 @@ final class FileService {
   ///Read log file with given name and return its content
   func readLogFile(fileName: String) throws -> String {
         
-    guard fileManager.fileExists(atPath: fullLogPathForFile(with: fileName).path) else {
+    guard isFileExist(withName: fileName) else {
         throw FileServiceError.fileDoesNotExistsError
     }
     
     do {
-      let fileContent = try String(contentsOfFile: fullLogPathForFile(with: fileName).path, encoding: String.Encoding.utf8)
+      let fileContent = try String(contentsOfFile: fullPathForFile(with: fileName).path, encoding: String.Encoding.utf8)
       return fileContent
     } catch {
       throw FileServiceError.readFileError
@@ -53,17 +52,19 @@ final class FileService {
   }
     
   ///Delete file with given name
-  func deleteLogFile(withName fileName: String) throws {
-    guard fileManager.fileExists(atPath: fullLogPathForFile(with: fileName).path) else{
-      return
+  func deleteFile(withName fileName: String) throws {
+    if isFileExist(withName: fileName) {
+      try? fileManager.removeItem(atPath: fullPathForFile(with: fileName).path)
     }
-        
-    try? fileManager.removeItem(atPath: fullLogPathForFile(with: fileName).path)
   }
     
   ///Create file with given name
   func createLogFile(withName fileName: String) {
-    fileManager.createFile(atPath: fullLogPathForFile(with: fileName).path, contents: initialLogText.data(using: String.Encoding.utf8))
+    fileManager.createFile(atPath: fullPathForFile(with: fileName).path, contents: initialLogText.data(using: String.Encoding.utf8))
+  }
+
+  func isFileExist(withName fileName: String) -> Bool {
+    return fileManager.fileExists(atPath: fullPathForFile(with: fileName).path)
   }
 }
 

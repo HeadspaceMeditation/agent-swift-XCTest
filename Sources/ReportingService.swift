@@ -106,12 +106,18 @@ class ReportingService {
         print(error)
      }
     
-     fileService.createLogFile(withName: extractTestName(from: test))
+     fileService.createLogFile(withName: extractTestName(from: test)+".log")
    }
     
   func reportLog(level: String, message: String) throws {
     let endPoint = PostLogEndPoint(itemID: testID, level: level, message: message)
     
+    let _: Result<Item, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
+  }
+
+  func attachScreenshot(fileName: String) {
+    let endPoint = PostScreenshotEndPoint(itemID: testID, fileName: fileName)
+
     let _: Result<Item, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
     
@@ -121,9 +127,17 @@ class ReportingService {
       testSuiteStatus = .failed
       launchStatus = .failed
     }
-    
-    try? reportLog(level: "info", message: fileService.readLogFile(fileName: extractTestName(from: test)))
-    try? fileService.deleteLogFile(withName: extractTestName(from: test))
+
+    let testName = extractTestName(from: test)
+    let logFileName = testName+".log"
+    try? reportLog(level: "info", message: fileService.readLogFile(fileName: logFileName))
+    try? fileService.deleteFile(withName: logFileName)
+
+    let screenshotFileName = testName+".png"
+    if fileService.isFileExist(withName: screenshotFileName) {
+      try? attachScreenshot(fileName: screenshotFileName)
+      try? fileService.deleteFile(withName: screenshotFileName)
+    }
     
     let endPoint = FinishItemEndPoint(itemID: testID, status: testStatus)
     
