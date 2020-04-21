@@ -240,12 +240,12 @@
 		92FEE06A212E924B00ADB1ED /* Entities */ = {
 			isa = PBXGroup;
 			children = (
-				92FEE06B212E925D00ADB1ED /* Item.swift */,
-				92FEE06D212E926400ADB1ED /* Launch.swift */,
 				92FEE07B212ECB0800ADB1ED /* AgentConfiguration.swift */,
-				9203A3C4213730D400BFAF82 /* NameRules.swift */,
 				92FEE06F212E943400ADB1ED /* FinishItem.swift */,
 				DE4CC4DF2405480700B5BC1A /* FinishLaunch.swift */,
+				92FEE06B212E925D00ADB1ED /* Item.swift */,
+				92FEE06D212E926400ADB1ED /* Launch.swift */,
+				9203A3C4213730D400BFAF82 /* NameRules.swift */,
 			);
 			path = Entities;
 			sourceTree = "<group>";
@@ -254,11 +254,11 @@
 			isa = PBXGroup;
 			children = (
 				92FEE083212ECB7900ADB1ED /* AuthorizationPlugin.swift */,
-				92FEE07E212ECB7900ADB1ED /* HTTPClient.swift */,
-				92FEE07F212ECB7900ADB1ED /* TimeHelper.swift */,
-				92FEE08D212EEA0300ADB1ED /* TagHelper.swift */,
-				92FEE080212ECB7900ADB1ED /* UIDevice+ModelName.swift */,
 				DEE32BA5238E6B4E0030CA36 /* FileService.swift */,
+				92FEE07E212ECB7900ADB1ED /* HTTPClient.swift */,
+				92FEE08D212EEA0300ADB1ED /* TagHelper.swift */,
+				92FEE07F212ECB7900ADB1ED /* TimeHelper.swift */,
+				92FEE080212ECB7900ADB1ED /* UIDevice+ModelName.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -266,14 +266,14 @@
 		92FEE081212ECB7900ADB1ED /* EndPoints */ = {
 			isa = PBXGroup;
 			children = (
-				9203A3862135882F00BFAF82 /* GetCurrentLaunchEndPoint.swift */,
-				92FEE084212ECB7900ADB1ED /* StartLaunchEndPoint.swift */,
-				92FEE095212EF30700ADB1ED /* StartItemEndPoint.swift */,
-				92FEE093212EEE2D00ADB1ED /* FinishItemEndPoint.swift */,
-				92FEE097212F028B00ADB1ED /* PostLogEndPoint.swift */,
-				92FEE091212EED3D00ADB1ED /* FinishLaunchEndPoint.swift */,
 				92FEE085212ECB7900ADB1ED /* EndPoint.swift */,
+				92FEE093212EEE2D00ADB1ED /* FinishItemEndPoint.swift */,
+				92FEE091212EED3D00ADB1ED /* FinishLaunchEndPoint.swift */,
+				9203A3862135882F00BFAF82 /* GetCurrentLaunchEndPoint.swift */,
+				92FEE097212F028B00ADB1ED /* PostLogEndPoint.swift */,
 				56F18854244DE6000059C138 /* PostScreenshotEndPoint.swift */,
+				92FEE095212EF30700ADB1ED /* StartItemEndPoint.swift */,
+				92FEE084212ECB7900ADB1ED /* StartLaunchEndPoint.swift */,
 			);
 			path = EndPoints;
 			sourceTree = "<group>";
