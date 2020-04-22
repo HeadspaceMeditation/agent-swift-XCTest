@@ -35,10 +35,16 @@ public class RPListener: NSObject, XCTestObservation {
       let launchName = bundleProperties["ReportPortalLaunchName"] as? String,
       let logDirectory = bundleProperties["REMOTE_LOGGING_BASE_URL"] as? String,
       let environment = bundleProperties["ENVIRONMENT_NAME"] as? String,
-      let buildVersion = bundleProperties["CFBundleShortVersionString"] as? String else
+      let buildVersion = bundleProperties["CFBundleShortVersionString"] as? String,
+      let testRunServerName = bundleProperties["TestRunServerName"] as? String else
     {
       fatalError("Configure properties for report portal in the Info.plist")
     }
+
+    //Determine user name/machine name which inits test run. Initially, the data looks like /Users/epamcontractor/Library/Developer/...
+    //We need to extract the second value, i.e. epamcontractor for example.
+    let currentServerName = String(ProcessInfo.processInfo.arguments[0].split(separator: "/")[1])
+
     var tags: [String] = []
     if let tagString = bundleProperties["ReportPortalTags"] as? String {
       tags = tagString.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).components(separatedBy: ",")
@@ -47,11 +53,17 @@ public class RPListener: NSObject, XCTestObservation {
     tags.append(launchName)
     tags.append(buildVersion)
     tags.append(testPriority.rawValue)
+    tags.append(currentServerName)
 
     var launchMode: LaunchMode = .default
     if let isDebug = bundleProperties["IsDebugLaunchMode"] as? Bool, isDebug == true {
       launchMode = .debug
     }
+
+    //Determine whether to send data to the Report Portal. Data can be sent if tests are run
+    //from CircleCI or the PushTestDataToReportPortal parameter is set to YES
+    let circleCIRun = currentServerName == testRunServerName
+    shouldPublishData = circleCIRun || shouldReport
 
     return AgentConfiguration(
       reportPortalURL: portalURL,
@@ -66,17 +78,13 @@ public class RPListener: NSObject, XCTestObservation {
       environment: environment,
       buildVersion: buildVersion,
       testType: testType.rawValue,
-      testPriority: testPriority.rawValue
+      testPriority: testPriority.rawValue,
+      testRunServerName: testRunServerName
     )
   }
 
   public func testBundleWillStart(_ testBundle: Bundle) {
     self.configuration = readConfiguration(from: testBundle)
-
-    //Determine whether to send data to the Report Portal. Data can be sent if tests are run
-    //from CircleCI or the PushTestDataToReportPortal parameter is set to YES
-    let circleCIRun = (ProcessInfo.processInfo.environment["CIRCLECI"] ?? "false") == "true"
-    shouldPublishData = circleCIRun || configuration.shouldSendReport
 
     guard shouldPublishData else {
       print("Set 'YES' for 'PushTestDataToReportPortal' property in Info.plist if you want to put data to report portal")
@@ -183,6 +191,7 @@ public class RPListener: NSObject, XCTestObservation {
     case smoke
     case mat
     case regression
+    case debug
   }
 
   private(set) lazy var testType: TestType = {
@@ -195,6 +204,6 @@ public class RPListener: NSObject, XCTestObservation {
   private(set) lazy var testPriority: TestPriority = {
     let priority = ProcessInfo.processInfo.environment["TestPriority"] ?? ""
 
-    return TestPriority(rawValue: priority) ?? .regression
+    return TestPriority(rawValue: priority) ?? .debug
   }()
 }
