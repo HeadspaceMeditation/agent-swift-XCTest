@@ -6,9 +6,12 @@
 //  Copyright © 2017 Oxagile. All rights reserved.
 //
 
+import  UIKit
+
 enum ParameterEncoding {
   case url
   case json
+  case multipart
 }
 
 enum HTTPMethod: String {
@@ -25,6 +28,8 @@ protocol EndPoint {
   var method: HTTPMethod { get }
   var relativePath: String { get }
   var parameters: [String: Any] { get }
+  var fileName: String { get }
+  var imageContent: UIImage { get }
   
 }
 
@@ -34,5 +39,6 @@ extension EndPoint {
   var encoding: ParameterEncoding { return .json }
   var method: HTTPMethod { return .get }
   var parameters: [String: Any] { return [:] }
-  
+  var fileName : String { return "" }
+  var imageContent: UIImage { return UIImage() }
 }

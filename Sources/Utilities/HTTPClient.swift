@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 enum HTTPClientError: Error {
   case invalidURL
@@ -53,6 +54,36 @@ class HTTPClient {
       let data = try JSONSerialization.data(withJSONObject: endPoint.parameters, options: .prettyPrinted)
       request.httpBody = data
     }
+
+    if endPoint.encoding == .multipart {
+        let boundary = UUID().uuidString
+        let uuid = UUID().uuidString
+        let CRLF = "\r\n"
+        let fileName = endPoint.fileName + ".png"
+        let formName = "file"
+        let type = "image/png"
+        //request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+
+        guard let imageData = (endPoint.imageContent).pngData() else {
+            print("oops")
+            return
+        }
+
+        let data = try JSONSerialization.data(withJSONObject: endPoint.parameters, options: .prettyPrinted)
+        var body = data
+        // file data //
+        body.append(("--\(boundary)" + CRLF).data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"formName\"; filename=\"\(fileName)\"\r\n".data(using: .utf8)!)
+        body.append(("Content-Type: \(type)" + CRLF + CRLF).data(using: .utf8)!)
+        body.append(imageData as Data)
+        body.append(CRLF.data(using: .utf8)!)
+
+        // footer //
+        body.append(("--\(boundary)--" + CRLF).data(using: .utf8)!)
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        request.httpBody = body
+    }
+
     plugins.forEach { (plugin) in
       plugin.processRequest(&request)
     }

@@ -132,7 +132,7 @@ public class RPListener: NSObject, XCTestObservation {
     if shouldPublishData {
       queue.async {
         do {
-          try self.reportingService.reportLog(level: "error", message: "Test '\(String(describing: testCase.name)))' failed on line \(lineNumber), \(description)")
+            try self.reportingService.reportLog(level: "error", message: "Test '\(String(describing: testCase.name)))' failed in file '\(filePath ?? "[]")' on line \(lineNumber), \(description)", test: testCase)
         } catch let error {
           print(error)
         }

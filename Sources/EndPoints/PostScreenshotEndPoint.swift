@@ -7,19 +7,27 @@
 //
 
 import Foundation
+import UIKit
 
 struct PostScreenshotEndPoint: EndPoint {
 
   let method: HTTPMethod = .post
   let relativePath: String = "log"
   let parameters: [String : Any]
+  let encoding: ParameterEncoding = .multipart
+  let fileName: String
+  let imageContent: UIImage
 
-  init(itemID: String, fileName: String) {
+  init(itemID: String, fileName: String, content: UIImage, message: String) {
     parameters = [
       "file" : ["name": fileName],
       "item_id": itemID,
+      "level": "error",
+      "messge": message,
       "time": TimeHelper.currentTimeAsString()
     ]
+    self.imageContent = content
+    self.fileName = fileName
   }
 }
 

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 final class FileService {
   private let fileManager = FileManager()
@@ -49,6 +50,25 @@ final class FileService {
       throw FileServiceError.readFileError
     }
         
+  }
+
+  ///Read image file with given name and return its content
+  func readScreenshot(fileName: String) throws -> UIImage {
+
+    guard isFileExist(withName: fileName) else {
+      throw FileServiceError.fileDoesNotExistsError
+    }
+
+    do {
+      let fileContent = try UIImage(contentsOfFile: fullPathForFile(with: fileName).path)
+      guard let screenshot = fileContent else {
+        return UIImage()
+      }
+      return screenshot
+    } catch {
+      throw FileServiceError.readFileError
+    }
+
   }
     
   ///Delete file with given name

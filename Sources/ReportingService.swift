@@ -109,16 +109,25 @@ class ReportingService {
      fileService.createLogFile(withName: extractTestName(from: test)+".log")
    }
     
-  func reportLog(level: String, message: String) throws {
-    let endPoint = PostLogEndPoint(itemID: testID, level: level, message: message)
-    
-    let _: Result<Item, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
-  }
+  func reportLog(level: String, message: String, test: XCTestCase) throws {
+    var endPoint: EndPoint
+    let testName = extractTestName(from: test)
+    let screenshotFileName = testName + ".png"
+    if level == "error" {
+      //in case we can't receive an image, we send log without attached file
+      if let imageContent = try? fileService.readScreenshot(fileName: screenshotFileName) {
+        endPoint = PostScreenshotEndPoint(itemID: testID, fileName: screenshotFileName, content: imageContent, message: message)
+      }
+      else {
+        endPoint = PostLogEndPoint(itemID: testID, level: level, message: message)
+      }
+    }
+    else {
+      endPoint = PostLogEndPoint(itemID: testID, level: level, message: message)
+    }
 
-  func attachScreenshot(fileName: String) {
-    let endPoint = PostScreenshotEndPoint(itemID: testID, fileName: fileName)
-
     let _: Result<Item, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
+    try? fileService.deleteFile(withName: screenshotFileName)
   }
     
   func finishTest(_ test: XCTestCase) throws {
@@ -130,14 +139,8 @@ class ReportingService {
 
     let testName = extractTestName(from: test)
     let logFileName = testName + ".log"
-    try? reportLog(level: "info", message: fileService.readLogFile(fileName: logFileName))
+    try? reportLog(level: "info", message: fileService.readLogFile(fileName: logFileName), test: test)
     try? fileService.deleteFile(withName: logFileName)
-
-    let screenshotFileName = testName + ".png"
-    if fileService.isFileExist(withName: screenshotFileName) {
-      try? attachScreenshot(fileName: screenshotFileName)
-      try? fileService.deleteFile(withName: screenshotFileName)
-    }
     
     let endPoint = FinishItemEndPoint(itemID: testID, status: testStatus)
     
