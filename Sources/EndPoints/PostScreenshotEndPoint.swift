@@ -23,7 +23,7 @@ struct PostScreenshotEndPoint: EndPoint {
       "file" : ["name": fileName],
       "item_id": itemID,
       "level": "error",
-      "messge": message,
+      "message": message,
       "time": TimeHelper.currentTimeAsString()
     ]
     self.imageContent = content

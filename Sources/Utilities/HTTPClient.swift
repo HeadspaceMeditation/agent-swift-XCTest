@@ -57,14 +57,13 @@ class HTTPClient {
 
     if endPoint.encoding == .multipart {
         let boundary = UUID().uuidString
-        let uuid = UUID().uuidString
         let CRLF = "\r\n"
         let fileName = endPoint.fileName + ".png"
         let formName = "file"
         let type = "image/png"
-        //request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
 
-        guard let imageData = (endPoint.imageContent).pngData() else {
+        guard let imageData = UIImagePNGRepresentation(endPoint.imageContent) else {
             print("oops")
             return
         }
@@ -73,7 +72,7 @@ class HTTPClient {
         var body = data
         // file data //
         body.append(("--\(boundary)" + CRLF).data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"formName\"; filename=\"\(fileName)\"\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"image_field\"; filename=\"\(fileName)\"\r\n".data(using: .utf8)!)
         body.append(("Content-Type: \(type)" + CRLF + CRLF).data(using: .utf8)!)
         body.append(imageData as Data)
         body.append(CRLF.data(using: .utf8)!)
@@ -87,7 +86,10 @@ class HTTPClient {
     plugins.forEach { (plugin) in
       plugin.processRequest(&request)
     }
-    print(request.url ?? "")
+    print("***************** URL: \(request.url)")
+    print("***************** Header: \(request.allHTTPHeaderFields) ")
+    print("***************** Body: \(String(data: request.httpBody as! Data, encoding: .utf8)!) ")
+
     utilityQueue.async {
       let task = URLSession.shared.dataTask(with: request as URLRequest) { (data: Data?, response: URLResponse?, error: Error?) in
         if let error = error {
