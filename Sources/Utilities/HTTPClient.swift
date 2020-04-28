@@ -88,7 +88,6 @@ class HTTPClient {
     }
     print("***************** URL: \(request.url)")
     print("***************** Header: \(request.allHTTPHeaderFields) ")
-    print("***************** Body: \(String(data: request.httpBody as! Data, encoding: .utf8)!) ")
 
     utilityQueue.async {
       let task = URLSession.shared.dataTask(with: request as URLRequest) { (data: Data?, response: URLResponse?, error: Error?) in
