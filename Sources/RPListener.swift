@@ -192,6 +192,7 @@ public class RPListener: NSObject, XCTestObservation {
     case mat
     case regression
     case debug
+    case flaky
   }
 
   private(set) lazy var testType: TestType = {
