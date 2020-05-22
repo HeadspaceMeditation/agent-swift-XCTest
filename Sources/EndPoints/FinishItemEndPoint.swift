@@ -9,22 +9,22 @@
 import Foundation
 
 struct FinishItemEndPoint: EndPoint {
-  
+
   let method: HTTPMethod = .put
   let relativePath: String
   let parameters: [String : Any]
-  
-  init(itemID: String, status: TestStatus) {
+
+  init(itemID: String, status: TestStatus, tags: [[String: Any]]) {
     relativePath = "item/\(itemID)"
     parameters = [
-      "attributes": [],
+      "attributes": tags,
       "description": "",
       "endTime": TimeHelper.currentTimeAsString(),
       "issue": [
         "autoAnalyzed": "false",
         "comment": "",
         "externalSystemIssues": [],
-        "ignoreAnalyser": true,
+        "ignoreAnalyser": false,
         "issueType": status == .failed ? "ti001" : "nd001"
       ],
       "launchUuid": "",
@@ -32,5 +32,5 @@ struct FinishItemEndPoint: EndPoint {
       "status": status.rawValue
     ]
   }
-  
+
 }

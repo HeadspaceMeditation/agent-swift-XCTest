@@ -14,33 +14,33 @@ enum ReportingServiceError: Error {
 }
 
 class ReportingService {
-    
+
   private let httpClient: HTTPClient
   private let configuration: AgentConfiguration
   private let fileService = FileService()
-    
+
   private var launchID: String?
   private var testSuiteStatus = TestStatus.passed
   private var launchStatus = TestStatus.passed
   private var rootSuiteID: String?
   private var testSuiteID: String?
   private var testID = ""
-    
+
   init(configuration: AgentConfiguration) {
     self.configuration = configuration
     let baseURL = configuration.reportPortalURL.appendingPathComponent(configuration.projectName)
     httpClient = HTTPClient(baseURL: baseURL)
     httpClient.setPlugins([AuthorizationPlugin(token: configuration.portalToken)])
   }
-    
+
   func startLaunch() throws {
-    
+
     let endPoint = StartLaunchEndPoint(
       launchName: getLaunchName(),
       tags: self.configuration.tags,
       mode: self.configuration.launchMode
     )
-    
+
     let response: Result<Launch, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
     switch response {
     case .success(let result):
@@ -49,14 +49,14 @@ class ReportingService {
       print(error)
     }
   }
-   
+
   func startRootSuite(_ suite: XCTestSuite) throws {
     guard let launchID = launchID else {
       throw ReportingServiceError.launchIdNotFound
     }
-    
+
     let endPoint = StartItemEndPoint(itemName: suite.name, launchID: launchID, type: .suite, tags: [])
-   
+
     let response: Result<Item, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
     switch response {
      case .success(let result):
@@ -65,7 +65,7 @@ class ReportingService {
        print(error)
      }
   }
-    
+
   func startTestSuite(_ suite: XCTestSuite) throws {
     guard let launchID = launchID else {
       throw ReportingServiceError.launchIdNotFound
@@ -82,7 +82,7 @@ class ReportingService {
        print(error)
     }
   }
-    
+
   func startTest(_ test: XCTestCase) throws {
     guard let launchID = launchID else {
       throw ReportingServiceError.launchIdNotFound
@@ -90,7 +90,7 @@ class ReportingService {
     guard let testSuiteID = testSuiteID else {
       throw ReportingServiceError.testSuiteIdNotFound
     }
-    var tags : [[String: Any]] = []
+    var tags : [[String: Any]] = [["owner":"111"]]
     let endPoint = StartItemEndPoint(
       itemName: extractTestName(from: test),
       parentID: testSuiteID,
@@ -98,7 +98,7 @@ class ReportingService {
       type: .step,
       tags: tags
     )
-    
+
     let response: Result<Item, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
     switch response {
       case .success(let result):
@@ -106,49 +106,52 @@ class ReportingService {
       case .failure(let error):
         print(error)
      }
-    
+
      fileService.createLogFile(withName: extractTestName(from: test))
    }
-    
+
   func reportLog(level: String, message: String) throws {
     let endPoint = PostLogEndPoint(itemID: testID, level: level, message: message)
-    
+
     let _: Result<Item, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
-    
+
   func finishTest(_ test: XCTestCase) throws {
     let testStatus = test.testRun!.hasSucceeded ? TestStatus.passed : TestStatus.failed
     if testStatus == .failed {
       testSuiteStatus = .failed
       launchStatus = .failed
     }
-    
-    try? reportLog(level: "info", message: fileService.readLogFile(fileName: extractTestName(from: test)))
+
+    readAndParseLogFile(fileName: extractTestName(from: test))
     try? fileService.deleteLogFile(withName: extractTestName(from: test))
-    
-    let endPoint = FinishItemEndPoint(itemID: testID, status: testStatus)
-    
+
+    var tags : [[String: Any]] = [["owner":"core"]]
+    let endPoint = FinishItemEndPoint(itemID: testID, status: testStatus, tags: tags)
+
     let _: Result<FinishItem, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
-    
+
   func finishTestSuite() throws {
     guard let testSuiteID = testSuiteID else {
       throw ReportingServiceError.testSuiteIdNotFound
     }
-    let endPoint = FinishItemEndPoint(itemID: testSuiteID, status: testSuiteStatus)
-    
+    var tags : [[String: Any]] = []
+    let endPoint = FinishItemEndPoint(itemID: testSuiteID, status: testSuiteStatus, tags : tags)
+
     let _: Result<FinishItem, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
-    
+
   func finishRootSuite() throws {
     guard let rootSuiteID = rootSuiteID else {
       throw ReportingServiceError.testSuiteIdNotFound
     }
-    let endPoint = FinishItemEndPoint(itemID: rootSuiteID, status: launchStatus)
-   
+    var tags : [[String: Any]] = []
+    let endPoint = FinishItemEndPoint(itemID: rootSuiteID, status: launchStatus, tags : tags)
+
     let _: Result<FinishItem, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
-    
+
   func finishLaunch() throws {
     guard configuration.shouldFinishLaunch else {
       print("skip finish till next test bundle")
@@ -158,20 +161,30 @@ class ReportingService {
       throw ReportingServiceError.launchIdNotFound
     }
     let endPoint = FinishLaunchEndPoint(launchID: launchID, status: launchStatus)
-    
+
     let _: Result<FinishLaunch, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
-    
+
   func getLaunchName() -> String {
     var launchName = "iOS_" + configuration.launchName + "_" + configuration.testType
     launchName += "_" + configuration.testPriority + "_" + configuration.environment
- 
+
     return launchName
   }
+
+    private func readAndParseLogFile(fileName: String) {
+        let fileContent = (try? fileService.readLogFile(fileName: fileName).split(separator: "\n"))
+        guard let content = fileContent else {
+            return
+        }
+        for nextLine in content  {
+            try? reportLog(level: "info", message: String(nextLine))
+        }
+    }
 }
 
 private extension ReportingService {
-    
+
   func extractTestName(from test: XCTestCase) -> String {
     let originName = test.name.trimmingCharacters(in: .whitespacesAndNewlines)
     let components = originName.components(separatedBy: " ")
@@ -179,7 +192,7 @@ private extension ReportingService {
 
     return result
   }
-    
+
 }
 
 extension String {
