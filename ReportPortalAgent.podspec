@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'ReportPortalAgent'
-    s.version          = '2.4.0'
+    s.version          = '3.0.0'
     s.summary          = 'Agent to push test results on Report Portal'
 
     s.description      = <<-DESC
@@ -12,9 +12,9 @@ Pod::Spec.new do |s|
     s.author           = { 'DarthRumata' => 'stas.kirichok@windmill.ch' }
     s.source           = { :git => 'https://github.com/Windmill-Smart-Solutions/ReportPortalAgent.git', :tag => s.version.to_s }
 
-    s.ios.deployment_target = '10.3'
+    s.ios.deployment_target = '11.0'
     s.tvos.deployment_target = '10.3'
-    s.swift_version = '4.1.2'
+    s.swift_version = '5.1.0'
     s.source_files = 'Sources/**/*'
 
     s.weak_framework = "XCTest"
