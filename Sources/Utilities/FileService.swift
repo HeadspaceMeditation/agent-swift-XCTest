@@ -16,18 +16,18 @@ final class FileService {
 
   private var logDirectoryURL : URL
 
-   init () {
-     let directoryPath = fileManager.temporaryDirectory
-     self.logDirectoryURL = directoryPath.appendingPathComponent(logSubdirectoryName)
+  init () {
+    let directoryPath = fileManager.temporaryDirectory
+    self.logDirectoryURL = directoryPath.appendingPathComponent(logSubdirectoryName)
 
-     if !fileManager.fileExists(atPath: self.logDirectoryURL.path) {
-       do {
-         try fileManager.createDirectory(atPath: self.logDirectoryURL.path, withIntermediateDirectories: true, attributes: nil)
-       } catch let error {
-         print("Error creating directory: \(error.localizedDescription)")
-       }
-     }
-   }
+    if !fileManager.fileExists(atPath: self.logDirectoryURL.path) {
+      do {
+        try fileManager.createDirectory(atPath: self.logDirectoryURL.path, withIntermediateDirectories: true, attributes: nil)
+      } catch let error {
+        print("Error creating directory: \(error.localizedDescription)")
+      }
+    }
+  }
     
   ///Return full path for particular file with given name
   func fullLogPathForFile(with fileName: String) -> URL {
