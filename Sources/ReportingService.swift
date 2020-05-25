@@ -25,6 +25,8 @@ class ReportingService {
   private var rootSuiteID: String?
   private var testSuiteID: String?
   private var testID = ""
+  private let ownerSeparatorInLog = "FEATURE:"
+  private var owner: String = "community"
 
   init(configuration: AgentConfiguration) {
     self.configuration = configuration
@@ -90,13 +92,12 @@ class ReportingService {
     guard let testSuiteID = testSuiteID else {
       throw ReportingServiceError.testSuiteIdNotFound
     }
-    var tags : [[String: Any]] = [["owner":"111"]]
+
     let endPoint = StartItemEndPoint(
       itemName: extractTestName(from: test),
       parentID: testSuiteID,
       launchID: launchID,
-      type: .step,
-      tags: tags
+      type: .step
     )
 
     let response: Result<Item, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
@@ -126,7 +127,7 @@ class ReportingService {
     readAndParseLogFile(fileName: extractTestName(from: test))
     try? fileService.deleteLogFile(withName: extractTestName(from: test))
 
-    var tags : [[String: Any]] = [["owner":"core"]]
+    let tags : [[String: Any]] = [["key": "owner", "system": false, "value": owner]]
     let endPoint = FinishItemEndPoint(itemID: testID, status: testStatus, tags: tags)
 
     let _: Result<FinishItem, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
@@ -136,8 +137,8 @@ class ReportingService {
     guard let testSuiteID = testSuiteID else {
       throw ReportingServiceError.testSuiteIdNotFound
     }
-    var tags : [[String: Any]] = []
-    let endPoint = FinishItemEndPoint(itemID: testSuiteID, status: testSuiteStatus, tags : tags)
+
+    let endPoint = FinishItemEndPoint(itemID: testSuiteID, status: testSuiteStatus)
 
     let _: Result<FinishItem, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
@@ -146,8 +147,8 @@ class ReportingService {
     guard let rootSuiteID = rootSuiteID else {
       throw ReportingServiceError.testSuiteIdNotFound
     }
-    var tags : [[String: Any]] = []
-    let endPoint = FinishItemEndPoint(itemID: rootSuiteID, status: launchStatus, tags : tags)
+
+    let endPoint = FinishItemEndPoint(itemID: rootSuiteID, status: launchStatus)
 
     let _: Result<FinishItem, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
@@ -173,11 +174,15 @@ class ReportingService {
   }
 
     private func readAndParseLogFile(fileName: String) {
-        let fileContent = (try? fileService.readLogFile(fileName: fileName).split(separator: "\n"))
+        let fileContent = (try? fileService.readLogFile(fileName: fileName).split(separator: "\r\n"))
         guard let content = fileContent else {
             return
         }
         for nextLine in content  {
+            //Extract test owner
+            if String(nextLine).contains(ownerSeparatorInLog) {
+                owner = String(nextLine).split(separator: ":").last!.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
             try? reportLog(level: "info", message: String(nextLine))
         }
     }

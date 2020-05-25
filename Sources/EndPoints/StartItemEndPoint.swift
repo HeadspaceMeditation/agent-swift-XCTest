@@ -14,7 +14,7 @@ struct StartItemEndPoint: EndPoint {
   var relativePath: String
   let parameters: [String : Any]
   
-  init(itemName: String, parentID: String? = nil, launchID: String, type: TestType, tags: [[String: Any]]) {
+  init(itemName: String, parentID: String? = nil, launchID: String, type: TestType, tags: [[String: Any]] = []) {
     relativePath = "item"
     if let parentID = parentID {
       relativePath += "/\(parentID)"

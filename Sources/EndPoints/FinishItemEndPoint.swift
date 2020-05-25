@@ -14,7 +14,7 @@ struct FinishItemEndPoint: EndPoint {
   let relativePath: String
   let parameters: [String : Any]
 
-  init(itemID: String, status: TestStatus, tags: [[String: Any]]) {
+  init(itemID: String, status: TestStatus, tags: [[String: Any]] = []) {
     relativePath = "item/\(itemID)"
     parameters = [
       "attributes": tags,
