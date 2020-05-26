@@ -25,7 +25,7 @@ class ReportingService {
   private var rootSuiteID: String?
   private var testSuiteID: String?
   private var testID = ""
-  private let ownerSeparatorInLog = "FEATURE:"
+  private let ownerSeparatorInLog = "OWNER:"
   private var owner: String = "community"
 
   init(configuration: AgentConfiguration) {
@@ -183,7 +183,10 @@ class ReportingService {
             if String(nextLine).contains(ownerSeparatorInLog) {
                 owner = String(nextLine).split(separator: ":").last!.trimmingCharacters(in: .whitespacesAndNewlines)
             }
-            try? reportLog(level: "info", message: String(nextLine))
+            //determine log row type
+            let logType = String(String(nextLine).split(separator: ":", maxSplits: 1, omittingEmptySubsequences: true)[0])
+            let type = (logType == "error" || logType == "debug") ? logType : "info"
+            try? reportLog(level: type, message: String(nextLine))
         }
     }
 }
