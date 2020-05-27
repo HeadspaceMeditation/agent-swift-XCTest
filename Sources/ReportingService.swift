@@ -184,9 +184,10 @@ class ReportingService {
                 owner = String(nextLine).split(separator: ":").last!.trimmingCharacters(in: .whitespacesAndNewlines)
             }
             //determine log row type
-            let logType = String(String(nextLine).split(separator: ":", maxSplits: 1, omittingEmptySubsequences: true)[0])
-            let type = (logType == "error" || logType == "debug") ? logType : "info"
-            try? reportLog(level: type, message: String(nextLine))
+            let parsedLogRow = String(nextLine).split(separator: ":", maxSplits: 1, omittingEmptySubsequences: true)
+            let logTypeFromFile = String(parsedLogRow[0]).trimmingCharacters(in: .whitespacesAndNewlines)
+            let logTypeForRP = (logTypeFromFile == "error" || logTypeFromFile == "debug") ? logTypeFromFile : "info"
+            try? reportLog(level: logTypeForRP, message: String(parsedLogRow[1]).trimmingCharacters(in: .whitespacesAndNewlines))
         }
     }
 }
