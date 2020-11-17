@@ -10,8 +10,6 @@ import Foundation
 enum FinishLaunchKeys: String, CodingKey {
   case launchId = "id"
 }
-
-
 struct FinishLaunch: Decodable {
   let launchId: String
   
@@ -19,5 +17,4 @@ struct FinishLaunch: Decodable {
     let container = try decoder.container(keyedBy: FinishLaunchKeys.self)
     launchId = try container.decode(String.self, forKey: .launchId)
   }
-  
 }

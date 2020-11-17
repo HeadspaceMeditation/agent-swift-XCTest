@@ -18,7 +18,6 @@ class ReportingService {
   private let httpClient: HTTPClient
   private let configuration: AgentConfiguration
   private let fileService = FileService()
-
   private var launchID: String?
   private var testSuiteStatus = TestStatus.passed
   private var launchStatus = TestStatus.passed
@@ -107,7 +106,6 @@ class ReportingService {
       case .failure(let error):
         print(error)
      }
-
      fileService.createLogFile(withName: extractTestName(from: test))
    }
 
@@ -123,7 +121,6 @@ class ReportingService {
       testSuiteStatus = .failed
       launchStatus = .failed
     }
-
     readAndParseLogFile(fileName: extractTestName(from: test))
     try? fileService.deleteLogFile(withName: extractTestName(from: test))
 
@@ -149,7 +146,6 @@ class ReportingService {
     }
 
     let endPoint = FinishItemEndPoint(itemID: rootSuiteID, status: launchStatus)
-
     let _: Result<FinishItem, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
 
@@ -162,14 +158,12 @@ class ReportingService {
       throw ReportingServiceError.launchIdNotFound
     }
     let endPoint = FinishLaunchEndPoint(launchID: launchID, status: launchStatus)
-
     let _: Result<FinishLaunch, Error> = self.httpClient.synchronousCallEndPoint(endPoint)
   }
 
   func getLaunchName() -> String {
     var launchName = "iOS_" + configuration.launchName + "_" + configuration.testType
     launchName += "_" + configuration.testPriority + "_" + configuration.environment
-
     return launchName
   }
 

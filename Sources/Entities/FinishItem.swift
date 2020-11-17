@@ -15,10 +15,9 @@ enum FinishItemKeys: String, CodingKey {
 
 struct FinishItem: Decodable {
   let message: String
-  
+
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: FinishItemKeys.self)
     message = try container.decode(String.self, forKey: .msg)
   }
-  
 }
