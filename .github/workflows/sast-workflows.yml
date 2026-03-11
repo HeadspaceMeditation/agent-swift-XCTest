@@ -10,10 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Secret Scanning Review Action'
-        uses: advanced-security/secret-scanning-review-action@v2.1.0
+        uses: advanced-security/secret-scanning-review-action@v2.2.4
         with:
           token: ${{ secrets.SECRET_SCAN_REVIEW_GITHUB_TOKEN }}
           fail-on-alert: false
+          skip-closed-alerts: true
   dependency-review:
     if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
