@@ -7,6 +7,7 @@ on:
 jobs:
   secret-scanning-review:
     if: ${{ github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'}}
+    permissions: {}
     runs-on: ubuntu-latest
     steps:
       - name: 'Secret Scanning Review Action'
@@ -17,6 +18,8 @@ jobs:
           skip-closed-alerts: true
   dependency-review:
     if: ${{ github.event_name == 'pull_request' }}
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout Repository'
