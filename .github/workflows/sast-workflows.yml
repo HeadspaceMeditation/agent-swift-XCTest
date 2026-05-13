@@ -6,7 +6,7 @@ on:
     branches: ['master', 'main', 'develop']
 jobs:
   secret-scanning-review:
-    if: ${{ github.actor != 'dependabot[bot]' && github.event_name == 'pull_request' }}
+    if: ${{ github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'}}
     permissions: {}
     runs-on: ubuntu-latest
     steps:
@@ -14,7 +14,6 @@ jobs:
         uses: advanced-security/secret-scanning-review-action@v2.2.4
         with:
           token: ${{ secrets.SECRET_SCAN_REVIEW_GITHUB_TOKEN }}
-          runtime: 'python'
           fail-on-alert: false
           skip-closed-alerts: true
   dependency-review:
